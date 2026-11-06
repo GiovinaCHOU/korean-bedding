@@ -248,9 +248,9 @@ function renderAdmin(){
  const T={orders:'訂單明細',summary:'叫貨彙總',add:'代客下單',cover:'首圖設定'};
  const tot=AD.summary.reduce((a,r)=>({q:a.q+r.qty,k:a.k+r.qty*r.krw,s:a.s+r.qty*r.ship,c:a.c+r.qty*r.cost}),{q:0,k:0,s:0,c:0});
  let body='';
- if(tab==='orders')body=`<div class="bar"><button class="ghost" id="xo">下載明細 CSV</button><span class="sub">共 ${AD.orders.length} 筆</span></div><div class="tablewrap"><table><tr><th>訂單</th><th>時間</th><th>姓名</th><th>電話</th><th>部門</th><th>類型</th><th>品項</th><th class="n">金額</th><th>付款</th><th>方式</th><th>備註</th></tr>
+ if(tab==='orders')body=`<div class="bar"><button class="ghost" id="xo">下載明細 CSV</button><span class="sub">共 ${AD.orders.length} 筆</span></div><div class="tablewrap"><table><tr><th>訂單</th><th>時間</th><th>姓名</th><th>電話</th><th>部門</th><th>類型</th><th>品項</th><th class="n">金額</th><th>付款</th><th>方式</th><th>備註</th><th></th></tr>
  ${AD.orders.map(o=>`<tr><td>${esc(o.id)}</td><td>${esc(o.date)}</td><td>${esc(o.name)}</td><td>${esc(o.phone)}</td><td>${esc(o.dept)}</td><td>${esc(o.kind)}</td><td>${o.lines.map(l=>`${esc(l.sku)} ×${l.qty}<br><small>${esc(l.name)}</small>`).join('<br>')}</td><td class="n">${money(o.total)}</td>
- <td>${o.editable?`<select data-pay="${esc(o.id)}">${['未付','已付'].map(p=>`<option ${o.pay===p?'selected':''}>${p}</option>`).join('')}</select>`:esc(o.pay)}</td><td>${o.editable?`<select data-method="${esc(o.id)}">${['','現金','匯款'].map(p=>`<option ${o.method===p?'selected':''}>${p}</option>`).join('')}</select>`:esc(o.method)}</td><td>${esc(o.note)}</td></tr>`).join('')}</table></div>`;
+ <td>${o.editable?`<select data-pay="${esc(o.id)}">${['未付','已付'].map(p=>`<option ${o.pay===p?'selected':''}>${p}</option>`).join('')}</select>`:esc(o.pay)}</td><td>${o.editable?`<select data-method="${esc(o.id)}">${['','現金','匯款'].map(p=>`<option ${o.method===p?'selected':''}>${p}</option>`).join('')}</select>`:esc(o.method)}</td><td>${esc(o.note)}</td><td>${o.editable?`<button class="linkbtn" data-del="${esc(o.id)}">刪除</button>`:'<small class="sub">請在試算表刪除</small>'}</td></tr>`).join('')}</table></div>`;
  if(tab==='summary')body=`<div class="bar"><button class="ghost" id="xs">下載叫貨 CSV</button><span class="sub">${tot.q} 件｜韓幣 ${num(tot.k)}｜運費 ${money(tot.s)}｜預估成本 ${money(tot.c)}</span></div><div class="tablewrap"><table><tr><th>品編</th><th class="n">數量</th><th>品項</th><th class="n">韓幣單價</th><th class="n">韓幣小計</th><th class="n">運費小計</th><th class="n">預估成本</th><th>賣家</th><th>型錄</th></tr>
  ${AD.summary.map(r=>`<tr><td>${esc(r.sku)}</td><td class="n">${r.qty}</td><td>${esc(r.name)}</td><td class="n">${num(r.krw)}</td><td class="n">${num(r.qty*r.krw)}</td><td class="n">${num(r.qty*r.ship)}</td><td class="n">${num(r.qty*r.cost)}</td><td>${safeUrl(r.seller)?`<a href="${esc(safeUrl(r.seller))}" target="_blank" rel="noopener">開啟</a>`:'<span class="err">缺連結</span>'}</td><td>${safeUrl(r.folder)?`<a href="${esc(safeUrl(r.folder))}" target="_blank" rel="noopener">開啟</a>`:''}</td></tr>`).join('')}</table></div>`;
  if(tab==='add')body=`<form id="af" class="cart" style="margin:0;padding:0"><label class="f">類型<select name="kind"><option>客戶</option><option>員工</option></select></label>
@@ -264,6 +264,11 @@ function renderAdmin(){
  <div class="tabs">${Object.keys(T).map(k=>`<button class="pill" aria-pressed="${k===tab}" data-tab="${k}">${T[k]}</button>`).join('')}</div>${body}</div>`;
  $('#app').querySelectorAll('[data-tab]').forEach(b=>b.onclick=async()=>{tab=b.dataset.tab;renderAdmin();if(tab==='cover'&&!CAT){try{CAT=await get('');}catch(x){alertErr(x.message)}renderAdmin()}});
  $('#app').querySelectorAll('[data-cv]').forEach(d=>d.ontoggle=()=>{if(d.open)loadPick(d.dataset.cv)});
+ $('#app').querySelectorAll('[data-del]').forEach(b=>b.onclick=async()=>{
+  if(b.dataset.confirm!=='1'){b.dataset.confirm='1';b.textContent='確定刪除？';b.style.color='var(--err)';setTimeout(()=>{if(b.isConnected&&b.dataset.confirm==='1'){b.dataset.confirm='';b.textContent='刪除';b.style.color=''}},4000);return}
+  b.disabled=true;b.textContent='刪除中';
+  try{await post({action:'admin_delete',password:pw,id:b.dataset.del});await loadAdmin()}catch(x){alertErr(x.message);b.disabled=false;b.textContent='刪除'}
+ });
  $('#app').querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>saveCover(b.dataset.reset,''));
  $('#rf').onclick=loadAdmin;
  $('#tg').onclick=async()=>{await post({action:'admin_toggle',password:pw,closed:!AD.closed});loadAdmin()};
