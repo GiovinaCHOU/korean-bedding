@@ -157,7 +157,7 @@ td select{padding:4px;border:1px solid var(--line);background:#fff}
 .sh-foot{display:flex;justify-content:space-between;font-size:8pt;color:var(--soft);border-top:.3mm solid var(--line);padding-top:2.5mm;margin-top:3mm}
 .sh-info{font-size:10.5pt;line-height:1.8}
 .sh-info h3{font-size:13pt;color:var(--head);margin:7mm 0 2mm}
-@media print{body{background:#fff}.ptool{display:none}.sheets{zoom:1!important}.sheets{padding:0;gap:0;background:#fff;display:block}.sheet{box-shadow:none;page-break-after:always;break-after:page}.sheet:last-child{page-break-after:auto;break-after:auto}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+@media print{html,body{margin:0;padding:0}body{background:#fff}.ptool{display:none}.sheets{zoom:1!important}.sheet{height:296mm;break-inside:avoid;page-break-inside:avoid}.wk-print .sheet{zoom:.88;margin:0 auto}.sheets{padding:0;gap:0;background:#fff;display:block}.sheet{box-shadow:none;page-break-after:always;break-after:page}.sheet:last-child{page-break-after:auto;break-after:auto}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 @media(max-width:760px){.cartbtn{position:fixed;right:16px;bottom:16px;z-index:6;padding:12px 20px;margin:0}.detail{grid-template-columns:1fr}.stage .main{aspect-ratio:1}dialog{height:100dvh}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 12px}.card h2{font-size:17px}}
 @media(prefers-reduced-motion:no-preference){.main{transition:opacity .2s}}
 </style>
@@ -387,6 +387,7 @@ function alertErr(m){const p=document.createElement('p');p.className='err';p.tex
 
 /* 型錄輸出 */
 const PRINT=VIEW==='print';
+(()=>{const ua=navigator.userAgent;const wk=/iPhone|iPad|iPod/.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1)||(/Safari/.test(ua)&&!/Chrome|Chromium|Edg|OPR/.test(ua));if(wk)document.documentElement.classList.add('wk-print')})();
 const SIZE_NOTE={S:'150×200 cm',Q:'200×230 cm',BB:'100×150 cm'};
 const BED={S:'120×200 cm',Q:'155×205 cm',K:'180×220 cm'};
 function dimOf(i){if(i.type==='床墊')return BED[i.size]||i.dim;if(i.type.includes('枕套'))return '50×70 cm';return SIZE_NOTE[i.size]||i.dim}
