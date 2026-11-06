@@ -98,6 +98,37 @@ td select{padding:4px;border:1px solid var(--line);background:#fff}
 .foot{font-size:13px;padding:0 0 32px;margin:0}.foot a{color:var(--soft)}
 .covers{display:grid;gap:14px}.cv{border-bottom:1px solid var(--line);padding:10px 0}.cv summary{cursor:pointer;display:flex;gap:12px;align-items:center}.cv summary img{width:56px;height:70px;object-fit:cover;background:var(--paper)}.pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.pick button{padding:0;border:3px solid transparent;background:var(--paper);width:96px;height:120px}.pick button[aria-pressed=true]{border-color:var(--head)}.pick img{width:100%;height:100%;object-fit:cover}
 .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+
+/* 型錄輸出 */
+@page{size:A4;margin:0}
+.ptool{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.sheets{padding:24px 0;display:flex;flex-direction:column;align-items:center;gap:24px;background:#d8d2c8}
+.sheet{width:210mm;height:297mm;background:#fff;padding:12mm 14mm 10mm;display:flex;flex-direction:column;overflow:hidden;color:var(--ink);box-shadow:0 2px 12px rgba(58,36,24,.18)}
+.sh-top{display:flex;justify-content:space-between;align-items:baseline;font-size:9pt;color:var(--soft);border-bottom:.3mm solid var(--line);padding-bottom:2.5mm}
+.sh-top b{font-family:"Noto Serif TC",serif;color:var(--head);font-size:10pt}
+.sh-title{display:flex;justify-content:space-between;align-items:baseline;margin:5mm 0 4mm}
+.sh-title h2{font-size:24pt;color:var(--head);letter-spacing:.04em}
+.sh-title span{font-size:11pt;color:var(--soft);letter-spacing:.06em}
+.sh-main{height:118mm;background:var(--paper)}
+.sh-main img,.sh-thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.sh-thumbs{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin-top:3mm;height:40mm}
+.sh-thumbs div{background:var(--paper);overflow:hidden}
+.sh-body{display:grid;grid-template-columns:1fr 1.25fr;gap:7mm;margin-top:5mm;font-size:9.5pt;line-height:1.6;flex:1;min-height:0}
+.sh-body h3{font-size:10.5pt;color:var(--head);margin:0 0 1.5mm}
+.sh-body ul{margin:0 0 3mm;padding:0;list-style:none}
+.sh-sw{display:flex;flex-wrap:wrap;gap:1.5mm 4mm}
+.sh-sw span{display:inline-flex;align-items:center;gap:1.5mm}
+.sh-sw i{width:3.5mm;height:3.5mm;border-radius:50%;border:.2mm solid rgba(58,36,24,.3);display:inline-block}
+.ptab{width:100%;border-collapse:collapse;font-size:9.5pt}
+.ptab th{background:var(--head);color:#fff;font-weight:500;padding:1.6mm 2mm;text-align:left}
+.ptab td{padding:1.6mm 2mm;border-bottom:.2mm solid var(--line);vertical-align:top}
+.ptab tr:nth-child(even) td{background:#FAF7F2}
+.ptab .n{text-align:right;white-space:nowrap}
+.ptab small{color:var(--soft)}
+.sh-foot{display:flex;justify-content:space-between;font-size:8pt;color:var(--soft);border-top:.3mm solid var(--line);padding-top:2.5mm;margin-top:3mm}
+.sh-info{font-size:10.5pt;line-height:1.8}
+.sh-info h3{font-size:13pt;color:var(--head);margin:7mm 0 2mm}
+@media print{body{background:#fff}.ptool{display:none}.sheets{padding:0;gap:0;background:#fff;display:block}.sheet{box-shadow:none;page-break-after:always;break-after:page}.sheet:last-child{page-break-after:auto;break-after:auto}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
 @media(max-width:760px){.cartbtn{position:fixed;right:16px;bottom:16px;z-index:6;padding:12px 20px;margin:0}.detail{grid-template-columns:1fr}.stage .main{aspect-ratio:1}dialog{height:100dvh}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 12px}.card h2{font-size:17px}}
 @media(prefers-reduced-motion:no-preference){.main{transition:opacity .2s}}
 </style>
@@ -283,7 +314,7 @@ function renderAdmin(){
  <p class="err" id="ae" hidden></p><button class="primary" style="margin-top:12px">建立訂單</button></form>
  <p class="sub">客戶訂單以售價計算，員工訂單以員工價計算；截止後仍可在這裡建立。可用品編共 ${AD.skus.length} 個。</p>`;
  if(tab==='cover')body=CAT?`<p class="sub">點系列展開，從現有照片中點一張設為型錄首圖。未設定時使用第一個品項的照片。</p><div class="covers">${CAT.series.map(s=>{const def=(s.items.find(i=>i.img)||{}).img;const cur=s.cover||def;return `<details class="cv" data-cv="${esc(s.id)}"><summary><img referrerpolicy="no-referrer" src="${img(cur,160)}" alt=""><span>${esc(s.id)} ${esc(s.name)}<br><small class="sub">${s.cover?'已自訂首圖':'預設首圖'}</small></span></summary><div class="pick" data-pick="${esc(s.id)}"><span class="sub">載入照片中</span></div>${s.cover?`<button class="linkbtn" data-reset="${esc(s.id)}" style="margin-top:8px">改回預設首圖</button>`:''}</details>`}).join('')}</div>`:'<p class="sub">載入型錄中</p>';
- $('#app').innerHTML=`<div class="wrap"><header class="top"><h1 style="font-size:36px">預購後台</h1><p><a href="?view=staff">員工下單頁</a>｜<a href="./">客戶型錄頁</a></p></header>
+ $('#app').innerHTML=`<div class="wrap"><header class="top"><h1 style="font-size:36px">預購後台</h1><p><a href="?view=staff">員工下單頁</a>｜<a href="./">客戶型錄頁</a>｜<a href="?view=print">型錄輸出</a></p></header>
  <div class="bar"><span>員工預購：${AD.open?'開放中':'已關閉'}（截止 ${fmtDeadline(AD.deadline)}）</span><button class="ghost" id="tg">${AD.closed?'重新開放':'立即關閉'}</button><button class="ghost" id="rf">重新整理</button></div>
  <div class="tabs">${Object.keys(T).map(k=>`<button class="pill" aria-pressed="${k===tab}" data-tab="${k}">${T[k]}</button>`).join('')}</div>${body}</div>`;
  $('#app').querySelectorAll('[data-tab]').forEach(b=>b.onclick=async()=>{tab=b.dataset.tab;renderAdmin();if(tab==='cover'&&!CAT){try{CAT=await get('');}catch(x){alertErr(x.message)}renderAdmin()}});
@@ -323,8 +354,57 @@ async function saveCover(id,image){
 }
 function alertErr(m){const p=document.createElement('p');p.className='err';p.textContent=m;$('#app .wrap').prepend(p)}
 
+
+/* 型錄輸出 */
+const PRINT=VIEW==='print';
+const SIZE_NOTE={S:'150×200 cm',Q:'200×230 cm',BB:'100×150 cm'};
+const BED={S:'120×200 cm',Q:'155×205 cm',K:'180×220 cm'};
+function dimOf(i){if(i.type==='床墊')return BED[i.size]||i.dim;if(i.type.includes('枕套'))return '50×70 cm';return SIZE_NOTE[i.size]||i.dim}
+function sizeLabel(i){if(i.type.includes('枕套'))return '';if(i.type==='四季被'&&i.size==='BB')return '童被';return i.size}
+async function renderPrint(){
+ const showStaff=new URLSearchParams(location.search).get('staff')==='1';
+ $('#app').innerHTML='<div class="center">準備型錄中</div>';
+ let data;try{data=await get(showStaff?'staff=1':'')}catch(x){$('#app').innerHTML=`<div class="center">型錄無法載入：${esc(x.message)}</div>`;return}
+ const gals=await Promise.all(data.series.map(s=>get('action=gallery&series='+s.id).then(g=>g.images||[]).catch(()=>[])));
+ const pages=data.series.map((s,k)=>{
+  const def=(s.items.find(i=>i.img)||{}).img;const main=s.cover||def;
+  const pool=[...new Set([...gals[k],...s.items.map(i=>i.img)].filter(p=>p&&p!==main))].slice(0,4);
+  const groups=[];const key={};
+  [...s.items].sort((a,b)=>TYPE_ORDER.indexOf(a.type)-TYPE_ORDER.indexOf(b.type)||['BB','S','Q','K','50×70'].indexOf(a.size)-['BB','S','Q','K','50×70'].indexOf(b.size)).forEach(i=>{
+   const g=i.type+'|'+i.size;if(!key[g]){key[g]={type:i.type,size:sizeLabel(i),dim:dimOf(i),prices:new Set(),staff:new Set(),colors:[],skus:[]};groups.push(key[g])}
+   key[g].prices.add(i.price);if(i.staff)key[g].staff.add(i.staff);key[g].colors.push(i.color);key[g].skus.push(i.sku)});
+  const colors=[...new Map(s.items.map(i=>[i.color,i])).values()];
+  const quilt=s.items.find(i=>!i.type.includes('枕套')&&i.type!=='床墊')||s.items[0];
+  const desc=(quilt.desc||[]).filter(l=>!/^顏色|尺寸|^枕/.test(l));
+  const pr=set=>{const a=[...set];const mn=Math.min(...a),mx=Math.max(...a);return mn===mx?money(mn):money(mn)+'–'+num(mx)};
+  return `<section class="sheet"><div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div>
+  <div class="sh-title"><h2>${esc(s.name)}</h2><span>${esc(s.id)}</span></div>
+  <div class="sh-main">${main?`<img referrerpolicy="no-referrer" src="${img(main,1600)}" alt="">`:''}</div>
+  ${pool.length?`<div class="sh-thumbs">${[0,1,2,3].map(n=>`<div>${pool[n]?`<img referrerpolicy="no-referrer" src="${img(pool[n],700)}" alt="">`:''}</div>`).join('')}</div>`:''}
+  <div class="sh-body"><div>${desc.length?`<h3>商品說明</h3><ul>${desc.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`:''}
+   <h3>顏色</h3><div class="sh-sw">${colors.map(i=>`<span><i style="background:${SWATCH[i.colorCode]||'#fff'}"></i>${esc(i.color)}</span>`).join('')}</div></div>
+   <div><table class="ptab"><tr><th>品項</th><th>尺寸</th><th class="n">售價</th>${showStaff?'<th class="n">員工價</th>':''}</tr>
+   ${groups.map(g=>`<tr><td>${esc(g.type)}${g.size?' '+esc(g.size):''}<br><small>${esc([...new Set(g.colors)].join('、'))}</small></td><td>${esc(g.dim)}</td><td class="n">${pr(g.prices)}</td>${showStaff?`<td class="n">${g.staff.size?pr(g.staff):''}</td>`:''}</tr>`).join('')}</table></div></div>
+  <div class="sh-foot"><span>尺寸因生產批次不同，±5 cm 為合理誤差範圍${s.id==='KRBL006'?'｜本款可烘乾':'｜可機洗，不可烘乾'}</span><span>官方 LINE ${LINE}｜${k+1}</span></div></section>`});
+ const info=`<section class="sheet"><div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div><div class="sh-info">
+  <div class="sh-title"><h2>尺寸與注意事項</h2></div><p>韓國寢具尺寸與台灣規格不同，購買前請先量床。因工廠生產批次不同，尺寸正負 5 cm 為合理誤差範圍。</p>
+  <h3>棉被</h3><table class="ptab"><tr><th>尺寸</th><th>規格</th><th>參考</th></tr><tr><td>S 單人</td><td>150×200 cm</td><td>接近台灣標準雙人</td></tr><tr><td>Q 雙人</td><td>200×230 cm</td><td>接近台灣雙人加大</td></tr><tr><td>BB 童被</td><td>100×150 cm</td><td></td></tr></table>
+  <h3>床墊</h3><table class="ptab"><tr><th>尺寸</th><th>規格</th></tr><tr><td>S 單人</td><td>120×200 cm</td></tr><tr><td>Q 雙人</td><td>155×205 cm</td></tr><tr><td>K 雙人加大</td><td>180×220 cm</td></tr></table>
+  <h3>洗滌</h3><p>棉被可機洗，建議搭配洗衣袋，洗後勿直曬太陽。除 KRBL006 可烘乾外，其餘皆不可烘乾。</p>
+  <h3>退換貨</h3><p>韓國床的尺寸與台灣不同，尺寸不適用恕無法退換。商品顏色依實品為準，色差不列入退換理由。</p>
+  <h3>訂購與詢問</h3><p>官方 LINE ${LINE}｜${LINE_URL}<br>永美室內裝修設計有限公司｜新北市永和區自由街55號1樓｜(02)2923-0218</p></div></section>`;
+ $('#app').innerHTML=`<div class="ptool"><b>型錄輸出</b><span class="sub" id="pst">共 ${pages.length+1} 頁，圖片載入中</span>
+  <label><input type="checkbox" id="pstaff" ${showStaff?'checked':''}> 顯示員工價</label>
+  <button class="primary" id="pp">列印 / 存成 PDF</button><a href="?view=admin">回後台</a></div>
+  <div class="sheets">${pages.join('')}${info}</div>`;
+ $('#pstaff').onchange=e=>{location.search='?view=print'+(e.target.checked?'&staff=1':'')};
+ $('#pp').onclick=()=>window.print();
+ const imgs=[...document.querySelectorAll('.sheet img')];let done=0;const tick=()=>{done++;if(done>=imgs.length)$('#pst').textContent=`共 ${pages.length+1} 頁，可以列印了`};
+ imgs.forEach(i=>{if(i.complete)tick();else{i.onload=tick;i.onerror=tick}});if(!imgs.length)tick();
+}
 dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
 (async()=>{
+ if(PRINT)return renderPrint();
  if(ADMIN)return adminLogin();
  try{DATA=await get(STAFF?'staff=1':'');renderShop()}
  catch(x){$('#app').innerHTML=`<div class="center">型錄暫時無法載入：${esc(x.message)}。請重新整理，或私訊官方 LINE ${LINE}。</div>`}
