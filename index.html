@@ -77,6 +77,14 @@ legend{padding:0;font-size:14px;color:var(--soft);margin-bottom:6px}
 label.f{display:block;margin-top:12px;font-size:14px;color:var(--soft)}
 label.f input,label.f textarea,label.f select{display:block;width:100%;margin-top:3px;border:1px solid var(--line);background:#fff;padding:9px;color:var(--ink);font-size:16px}
 .err{color:var(--err);margin-top:10px}
+.linebtn{display:inline-flex;align-items:center;justify-content:center;background:#06C755;color:#fff;text-decoration:none;padding:9px 18px;border-radius:999px;font-weight:500;min-height:42px}
+.linebtn:focus-visible{outline:2px solid var(--ink)}
+.paybox{margin-top:16px;border:0;padding:0}
+.payopt{display:flex;gap:8px;align-items:flex-start;padding:10px;border:1px solid var(--line);margin-top:6px;cursor:pointer}
+.payopt:has(input:checked){border-color:var(--head);box-shadow:inset 0 0 0 1px var(--head)}
+.payopt small{display:block;color:var(--soft)}
+.bank{background:var(--paper);padding:12px;margin-top:8px;font-size:15px;line-height:1.8}
+.acct b{font-size:18px;letter-spacing:.04em}
 .ok{background:var(--paper);padding:14px;margin-top:10px}
 .center{padding:60px 0;text-align:center;color:var(--soft)}
 .tabs{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0}
@@ -100,6 +108,12 @@ td select{padding:4px;border:1px solid var(--line);background:#fff}
 <script>
 const API_URL='https://script.google.com/macros/s/AKfycbx2yfJk737W88NwaeQcGe9IEGTBeLlyj42AZ9c-SZOVo_w1qP0GIZhX1EXLrrQ4iMYYKA/exec';
 const LINE='@473dadky';
+const LINE_URL='https://lin.ee/taAPQlsD';
+const BANK={code:'806 元大銀行｜永和分行',name:'永美室內裝修設計有限公司',acct:'20222000104927'};
+const PAY={現金:'請於上班時間至永美門市現金結帳。',匯款:'請將費用匯至以下帳戶，回傳官方 LINE 匯款成功畫面截圖，並提供帳戶末五碼，以利查帳，謝謝～'};
+const lineBtn=(t='加入官方 LINE')=>`<a class="linebtn" href="${LINE_URL}" target="_blank" rel="noopener">${t}</a>`;
+const bankBox=()=>`<div class="bank"><div>${esc(BANK.code)}</div><div>${esc(BANK.name)}</div><div class="acct"><b>${esc(BANK.acct)}</b> <button type="button" class="linkbtn" data-copy="${esc(BANK.acct)}">複製帳號</button></div></div>`;
+function bindCopy(root){root.querySelectorAll('[data-copy]').forEach(b=>b.onclick=async()=>{try{await navigator.clipboard.writeText(b.dataset.copy);b.textContent='已複製'}catch(e){b.textContent='請長按帳號複製'}})}
 const VIEW=new URLSearchParams(location.search).get('view')||'';
 const STAFF=VIEW==='staff',ADMIN=VIEW==='admin';
 const SWATCH={BL:'#8FA6B8',GR:'#A9A6A0',PK:'#E3BEBE',WT:'#FBFAF6',BG:'#D9C7A8',MK:'#D9C7A8',BK:'#3D3A38',GN:'#9CAE8E',RD:'#B5564F'};
@@ -133,7 +147,7 @@ function renderShop(){
  const list=DATA.series.filter(s=>filter==='全部'||s.items.some(i=>i.type===filter));
  const count=cart.reduce((a,c)=>a+c.qty,0);
  $('#app').innerHTML=`<div class="wrap"><header class="top"><h1>韓國寢具型錄</h1>
- <p>${STAFF?`員工預購至 <span class="deadline">${fmtDeadline(DATA.deadline)}</span>，${DATA.open?'選好款式後送出訂單，預計 11/30 前到貨。':'目前已截止，如需協助請私訊官方 LINE。'}`:`歡迎挑選喜歡的款式，想訂購請告訴永美門市人員，或私訊官方 LINE ${LINE}。`}</p></header></div>
+ <p>${STAFF?`員工預購至 <span class="deadline">${fmtDeadline(DATA.deadline)}</span>，${DATA.open?'選好款式後送出訂單，預計 11/30 前到貨。':'目前已截止，如需協助請私訊官方 LINE。'}`:`歡迎挑選喜歡的款式，想訂購請告訴永美門市人員，或私訊官方 LINE ${LINE}。`}</p><p style="margin-top:14px">${lineBtn()}</p></header></div>
  <nav class="filters" aria-label="依品類篩選"><div class="wrap">${types.map(t=>`<button class="pill" aria-pressed="${t===filter}" data-f="${esc(t)}">${esc(t)}</button>`).join('')}${STAFF?`<button class="cartbtn" id="openCart">訂購清單（${count}）</button>`:''}</div></nav>
  <main class="wrap"><div class="grid">${list.map(card).join('')}</div>${sizesBlock()}<p class="foot"><a href="?view=admin">管理後台</a></p></main>`;
  $('#app').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{filter=b.dataset.f;renderShop()});
@@ -184,7 +198,7 @@ function renderDetail(){
  ${sizes.length>1||sizes[0].dim?`<fieldset><legend>尺寸</legend><div class="opts">${sizes.map(i=>`<button class="opt" aria-pressed="${i.size===sel.size}" data-size="${esc(i.size)}">${esc(i.size==='50×70'?'':i.size)} ${esc(i.dim)}</button>`).join('')}</div></fieldset>`:''}
  <fieldset><legend>顏色</legend><div class="opts">${colors.map(i=>`<button class="opt" aria-pressed="${i.color===sel.color}" data-color="${esc(i.color)}">${i.colorCode?`<span class="chip" style="background:${SWATCH[i.colorCode]||'#ccc'}"></span>`:''}${esc(i.color)}</button>`).join('')}</div></fieldset>
  <div class="bigprice">${money(shownPrice(it))}</div>${STAFF?`<div class="sub">員工價，售價 ${money(it.price)}</div>`:''}
- ${STAFF?(DATA.open?`<div class="qty"><input id="qty" type="number" min="1" max="99" value="${sel.qty}" aria-label="數量"><button class="primary" id="add">加入訂購清單</button></div>`:`<p class="err">預購已截止。</p>`):`<p class="sub">想訂購請告訴門市人員品編 ${esc(it.sku)}，或私訊官方 LINE ${LINE}。</p>`}
+ ${STAFF?(DATA.open?`<div class="qty"><input id="qty" type="number" min="1" max="99" value="${sel.qty}" aria-label="數量"><button class="primary" id="add">加入訂購清單</button></div>`:`<p class="err">預購已截止。</p>`):`<p class="sub">想訂購請告訴門市人員品編 ${esc(it.sku)}，或私訊官方 LINE。</p><p>${lineBtn('私訊官方 LINE')}</p>`}
  <ul class="desc">${(it.desc||[]).map(l=>`<li>${esc(l)}</li>`).join('')}${it.note?`<li>${esc(it.note)}</li>`:''}</ul></div></div>`;
  dlg.querySelector('[data-close]').onclick=()=>dlg.close();
  dlg.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{sel.type=b.dataset.type;sel.photo=null;normalize();renderDetail()});
@@ -210,19 +224,29 @@ function openCart(){
  <label class="f">電話<input name="phone" required maxlength="20" inputmode="tel" value="${esc(v.phone)}" autocomplete="tel"></label>
  <label class="f">部門<input name="dept" required maxlength="30" value="${esc(v.dept)}"></label>
  <label class="f">備註<textarea name="note" rows="2" maxlength="200">${esc(v.note)}</textarea></label>
+ <fieldset class="paybox"><legend>付款方式</legend>
+ <label class="payopt"><input type="radio" name="method" value="現金" required ${v.method==='現金'?'checked':''}><span>現金<small>${PAY.現金}</small></span></label>
+ <label class="payopt"><input type="radio" name="method" value="匯款" required ${v.method==='匯款'?'checked':''}><span>匯款<small>${PAY.匯款}</small></span></label>
+ <div id="bankwrap" ${v.method==='匯款'?'':'hidden'}>${bankBox()}</div></fieldset>
  <label style="display:flex;gap:8px;margin-top:14px;font-size:14px"><input type="checkbox" required> <span>我已確認尺寸。韓國床的尺寸與台灣不同，尺寸不適用恕無法退換；送出後如需修改或取消，請私訊官方 LINE ${LINE}。</span></label>
  <p class="err" id="oe" hidden></p><button class="primary" style="margin-top:14px;width:100%">送出訂單</button></form>`:''}</div>`;
  dlg.querySelector('[data-close]').onclick=()=>dlg.close();
  dlg.querySelectorAll('[data-q]').forEach(i=>i.onchange=()=>{keep();const c=cart.find(x=>x.sku===i.dataset.q);c.qty=Math.max(1,Math.min(99,Math.floor(Number(i.value))||1));saveCart();openCart();renderShopKeep()});
  dlg.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{keep();cart=cart.filter(c=>c.sku!==b.dataset.rm);saveCart();openCart();renderShopKeep()});
+ bindCopy(dlg);
+ dlg.querySelectorAll('input[name=method]').forEach(r=>r.onchange=()=>{const w=$('#bankwrap',dlg);if(w)w.hidden=r.value!=='匯款'||!r.checked});
  const f=$('#of',dlg);if(f)f.onsubmit=async e=>{
   e.preventDefault();const d=Object.fromEntries(new FormData(f));const btn=f.querySelector('.primary'),er=$('#oe',dlg);
   btn.disabled=true;btn.textContent='送出中';er.hidden=true;
   window.__token=window.__token||(Date.now()+'-'+Math.random().toString(36).slice(2));
   try{const r=await post({action:'order',token:window.__token,items:cart,...d});
    window.__token=null;cart=[];saveCart();renderShopKeep();
-   dlg.innerHTML=`<div class="cart"><button class="x" aria-label="關閉" data-close>×</button><h2>訂單已送出</h2><div class="ok">訂單編號 <b>${esc(r.orderId)}</b><br>合計 ${money(r.total)}</div><p>付款方式為匯款或現金，請截圖保留訂單編號。如需修改或取消，請私訊官方 LINE ${LINE}。</p><button class="primary" data-close>回到型錄</button></div>`;
-   dlg.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>dlg.close());
+   const m=d.method;window.__form={name:d.name,phone:d.phone,dept:d.dept};
+   dlg.innerHTML=`<div class="cart"><button class="x" aria-label="關閉" data-close>×</button><h2>訂單已送出</h2><div class="ok">訂單編號 <b>${esc(r.orderId)}</b><br>合計 ${money(r.total)}<br>付款方式 ${esc(m)}</div>
+   <p>${esc(PAY[m]||'')}</p>${m==='匯款'?bankBox():''}
+   <p class="sub">請截圖保留訂單編號。如需修改或取消，請私訊官方 LINE。</p>
+   <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px">${lineBtn(m==='匯款'?'開啟官方 LINE 回傳截圖':'加入官方 LINE')}<button class="primary" data-close>回到型錄</button></div></div>`;
+   dlg.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>dlg.close());bindCopy(dlg);
   }catch(x){er.textContent=(x.message||'送出失敗')+' 訂單尚未確認，請再按一次；若仍失敗請私訊官方 LINE。';er.hidden=false;btn.disabled=false;btn.textContent='送出訂單'}
  };
  if(!dlg.open)dlg.showModal();
