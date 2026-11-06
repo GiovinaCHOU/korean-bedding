@@ -126,6 +126,7 @@ td select{padding:4px;border:1px solid var(--line);background:#fff}
 .ptab .n{text-align:right;white-space:nowrap}
 .ptab small{color:var(--soft)}
 .sheet.dense .sh-main{height:92mm}.sheet.dense .sh-thumbs{height:32mm}.sheet.dense .ptab{font-size:8.5pt}.sheet.dense .ptab td{padding:1.1mm 2mm}.sheet.dense .sh-body{margin-top:4mm}
+.sheet.denser .sh-main{height:78mm}.sheet.denser .sh-thumbs{height:28mm}
 .sh-foot{display:flex;justify-content:space-between;font-size:8pt;color:var(--soft);border-top:.3mm solid var(--line);padding-top:2.5mm;margin-top:3mm}
 .sh-info{font-size:10.5pt;line-height:1.8}
 .sh-info h3{font-size:13pt;color:var(--head);margin:7mm 0 2mm}
@@ -398,6 +399,7 @@ async function renderPrint(){
   <label><input type="checkbox" id="pstaff" ${showStaff?'checked':''}> 顯示員工價</label>
   <button class="primary" id="pp">列印 / 存成 PDF</button><a href="?view=admin">回後台</a></div>
   <div class="sheets">${pages.join('')}${info}</div>`;
+ document.querySelectorAll('.sheet').forEach(s=>{const b=s.querySelector('.sh-body');const over=()=>b&&b.scrollHeight>b.clientHeight+1;if(over())s.classList.add('dense');if(over())s.classList.add('denser')});
  $('#pstaff').onchange=e=>{location.search='?view=print'+(e.target.checked?'&staff=1':'')};
  $('#pp').onclick=()=>window.print();
  const imgs=[...document.querySelectorAll('.sheet img')];let done=0;imgs.forEach(i=>i.addEventListener('error',()=>{i.style.visibility='hidden'}));const tick=()=>{done++;if(done>=imgs.length)$('#pst').textContent=`共 ${pages.length+1} 頁，可以列印了`};
