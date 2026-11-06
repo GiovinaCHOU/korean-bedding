@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>韓國寢具型錄｜永美家居</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500&family=Noto+Serif+TC:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F7F4EE;--paper:#EFE9DE;--line:#D9CFBF;--accent:#6B4C3B;--head:#5C3D2E;--ink:#3A2418;--soft:#7A6656;--err:#A23B2A}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.7 "Noto Sans TC",sans-serif}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+img{display:block;max-width:100%}
+h1,h2,h3{font-family:"Noto Serif TC",serif;font-weight:700;margin:0;line-height:1.3}
+.wrap{max-width:1240px;margin:auto;padding:0 16px}
+header.top{padding:40px 0 20px}
+header.top h1{font-size:clamp(34px,6vw,64px);color:var(--head);letter-spacing:.02em}
+header.top p{margin:10px 0 0;max-width:38em;color:var(--soft)}
+.deadline{color:var(--ink);font-weight:500}
+.filters{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0}
+.filters .wrap{display:flex;gap:6px;overflow-x:auto;align-items:center}
+.pill{flex:none;background:none;border:1px solid transparent;padding:6px 14px;border-radius:999px}
+.pill[aria-pressed=true]{background:var(--head);color:#fff}
+.cartbtn{flex:none;margin-left:auto;background:var(--accent);color:#fff;border:0;padding:7px 16px;border-radius:999px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:36px 20px;padding:28px 0 64px;align-items:start}
+a{color:var(--accent)}
+.card{all:unset;display:block;cursor:pointer}
+.card:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.photo{aspect-ratio:4/5;background:var(--paper);overflow:hidden;position:relative}
+.photo img{width:100%;height:100%;object-fit:cover}
+.card h2{font-size:20px;margin-top:12px}
+.meta{color:var(--soft);font-size:14px}
+.price{font-weight:500}
+.staffprice{color:var(--accent);font-weight:500}
+.chips{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.chip{width:14px;height:14px;border-radius:50%;border:1px solid rgba(58,36,24,.25)}
+dialog{border:0;padding:0;background:var(--bg);color:var(--ink);max-width:min(1040px,100vw);width:100%;max-height:100dvh}
+dialog::backdrop{background:rgba(58,36,24,.55)}
+.detail{display:grid;grid-template-columns:1.15fr 1fr}
+.stage{background:var(--paper);min-width:0}
+.stage .main{aspect-ratio:4/5;width:100%;object-fit:contain}
+.thumbs{display:flex;gap:6px;overflow-x:auto;padding:8px}
+.thumbs button{flex:none;padding:0;border:2px solid transparent;background:none;width:60px;height:60px}
+.thumbs button[aria-current=true]{border-color:var(--accent)}
+.thumbs img{width:100%;height:100%;object-fit:cover}
+.panel{padding:24px;min-width:0;position:relative}
+.panel h2{font-size:28px;padding-right:44px;color:var(--head)}
+.x{position:absolute;right:12px;top:12px;width:40px;height:40px;background:none;border:0;font-size:24px;line-height:1}
+fieldset{border:0;padding:0;margin:18px 0 0}
+legend{padding:0;font-size:14px;color:var(--soft);margin-bottom:6px}
+.opts{display:flex;flex-wrap:wrap;gap:6px}
+.opt{border:1px solid var(--line);background:none;padding:6px 12px;display:flex;align-items:center;gap:6px;min-height:40px}
+.opt[aria-pressed=true]{border-color:var(--head);box-shadow:inset 0 0 0 1px var(--head)}
+.bigprice{font-family:"Noto Serif TC",serif;font-size:30px;margin-top:18px}
+.sub{color:var(--soft);font-size:14px}
+.qty{display:flex;gap:10px;align-items:stretch;margin-top:14px}
+.qty input{width:76px;border:1px solid var(--line);background:#fff;padding:8px;text-align:center}
+.primary{background:var(--head);color:#fff;border:0;padding:11px 20px;min-height:44px}
+.primary[disabled]{opacity:.5;cursor:not-allowed}
+.ghost{background:none;border:1px solid var(--line);padding:8px 14px}
+.desc{margin:18px 0 0;padding:0;list-style:none;font-size:14px;color:var(--soft)}
+.sizes{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--soft);font-size:15px}
+.sizes h2{font-size:20px;color:var(--ink);margin-bottom:10px}
+.sizes .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px}
+.sizes h3{font-size:16px;color:var(--ink)}
+.sizes ul{margin:6px 0 0;padding-left:18px}
+.cart{padding:24px;max-width:560px;margin:auto;position:relative}
+.cart h2{font-size:26px;color:var(--head);margin-bottom:12px}
+.row{display:grid;grid-template-columns:1fr auto;gap:4px 12px;padding:10px 0;border-bottom:1px solid var(--line)}
+.row small{color:var(--soft)}
+.linkbtn{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;font-size:14px}
+label.f{display:block;margin-top:12px;font-size:14px;color:var(--soft)}
+label.f input,label.f textarea,label.f select{display:block;width:100%;margin-top:3px;border:1px solid var(--line);background:#fff;padding:9px;color:var(--ink);font-size:16px}
+.err{color:var(--err);margin-top:10px}
+.ok{background:var(--paper);padding:14px;margin-top:10px}
+.center{padding:60px 0;text-align:center;color:var(--soft)}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:16px 0}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th{background:var(--head);color:#fff;text-align:left;font-weight:500;padding:8px;white-space:nowrap}
+td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:nth-child(even) td{background:var(--paper)}
+td.n,th.n{text-align:right}
+td select{padding:4px;border:1px solid var(--line);background:#fff}
+.bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+@media(max-width:760px){.cartbtn{position:fixed;right:16px;bottom:16px;z-index:6;padding:12px 20px;margin:0}.detail{grid-template-columns:1fr}.stage .main{aspect-ratio:1}dialog{height:100dvh}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 12px}.card h2{font-size:17px}}
+@media(prefers-reduced-motion:no-preference){.main{transition:opacity .2s}}
+</style>
+</head>
+<body>
+<div id="app"><div class="center">載入型錄中</div></div>
+<dialog id="dlg"></dialog>
+<script>
+const API_URL='https://script.google.com/macros/s/AKfycbx2yfJk737W88NwaeQcGe9IEGTBeLlyj42AZ9c-SZOVo_w1qP0GIZhX1EXLrrQ4iMYYKA/exec';
+const LINE='@473dadky';
+const VIEW=new URLSearchParams(location.search).get('view')||'';
+const STAFF=VIEW==='staff',ADMIN=VIEW==='admin';
+const SWATCH={BL:'#8FA6B8',GR:'#A9A6A0',PK:'#E3BEBE',WT:'#FBFAF6',BG:'#D9C7A8',MK:'#D9C7A8',BK:'#3D3A38',GN:'#9CAE8E',RD:'#B5564F'};
+const TYPE_ORDER=['四季被','四季厚被','冬被','枕套','毛絨枕套','床墊','其他'];
+const $=(s,r=document)=>r.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const num=n=>Math.round(Number(n)).toLocaleString('en-US');
+const money=n=>'NT$'+num(n);
+const img=(id,w=900)=>id?`https://lh3.googleusercontent.com/d/${encodeURIComponent(id)}=w${w}`:'';
+const safeUrl=u=>/^https?:\/\//.test(String(u))?String(u):'';
+let DATA=null,filter='全部',cart=[],sel=null,pw='';
+try{cart=JSON.parse(localStorage.getItem('krbl_cart')||'[]')}catch(e){}
+const saveCart=()=>{try{localStorage.setItem('krbl_cart',JSON.stringify(cart))}catch(e){}};
+const dlg=$('#dlg');
+
+async function get(q){const r=await fetch(API_URL+'?'+q);const j=await r.json();if(j.error)throw new Error(j.error);return j}
+async function post(b){const r=await fetch(API_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(b)});const j=await r.json();if(j.error)throw new Error(j.error);return j}
+const shownPrice=i=>STAFF?i.staff:i.price;
+const skuMap=()=>Object.fromEntries(DATA.series.flatMap(s=>s.items.map(i=>[i.sku,i])));
+const fmtDeadline=d=>{const t=new Date(d);return `${t.getMonth()+1}/${t.getDate()} ${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}`};
+
+function sizesBlock(){return `<section class="sizes"><h2>尺寸與注意事項</h2><div class="cols">
+<div><h3>棉被</h3><ul><li>S：150×200 cm（接近台灣標準雙人）</li><li>Q：200×230 cm（接近台灣雙人加大）</li><li>BB：100×150 cm</li></ul></div>
+<div><h3>床墊</h3><ul><li>S：120×200 cm</li><li>Q：155×205 cm</li><li>K：180×220 cm</li></ul></div>
+<div><h3>洗滌</h3><ul><li>棉被可機洗，建議搭配洗衣袋</li><li>洗後勿直曬太陽</li><li>除 KRBL006 可烘乾外，其餘皆不可烘乾</li></ul></div>
+<div><h3>退換貨</h3><ul><li>韓國床的尺寸與台灣不同，尺寸不適用恕無法退換</li><li>顏色依實品為準，色差不列入退換理由</li></ul></div>
+</div></section>`}
+
+function renderShop(){
+ const types=['全部',...TYPE_ORDER.filter(t=>DATA.series.some(s=>s.items.some(i=>i.type===t)))];
+ const list=DATA.series.filter(s=>filter==='全部'||s.items.some(i=>i.type===filter));
+ const count=cart.reduce((a,c)=>a+c.qty,0);
+ $('#app').innerHTML=`<div class="wrap"><header class="top"><h1>韓國寢具型錄</h1>
+ <p>${STAFF?`員工預購至 <span class="deadline">${fmtDeadline(DATA.deadline)}</span>，${DATA.open?'選好款式後送出訂單，預計 11/30 前到貨。':'目前已截止，如需協助請私訊官方 LINE。'}`:`歡迎挑選喜歡的款式，想訂購請告訴永美門市人員，或私訊官方 LINE ${LINE}。`}</p></header></div>
+ <nav class="filters" aria-label="依品類篩選"><div class="wrap">${types.map(t=>`<button class="pill" aria-pressed="${t===filter}" data-f="${esc(t)}">${esc(t)}</button>`).join('')}${STAFF?`<button class="cartbtn" id="openCart">訂購清單（${count}）</button>`:''}</div></nav>
+ <main class="wrap"><div class="grid">${list.map(card).join('')}</div>${sizesBlock()}</main>`;
+ $('#app').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{filter=b.dataset.f;renderShop()});
+ $('#app').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>openSeries(b.dataset.s));
+ const oc=$('#openCart');if(oc)oc.onclick=openCart;
+ $('#app').querySelectorAll('img').forEach(i=>i.onerror=()=>{i.style.visibility='hidden'});
+}
+function card(s){
+ const items=filter==='全部'?s.items:s.items.filter(i=>i.type===filter);
+ const min=Math.min(...items.map(shownPrice));
+ const colors=[...new Map(s.items.filter(i=>i.colorCode).map(i=>[i.colorCode,i])).keys()];
+ const types=[...new Set(s.items.map(i=>i.type))].sort((a,b)=>TYPE_ORDER.indexOf(a)-TYPE_ORDER.indexOf(b));
+ const first=items.find(i=>i.img)||s.items.find(i=>i.img)||{};
+ return `<button class="card" data-s="${esc(s.id)}"><div class="photo"><img loading="lazy" referrerpolicy="no-referrer" src="${img(first.img,600)}" alt="${esc(s.name)}"></div>
+ <h2>${esc(s.name)}</h2><div class="meta">${esc(s.id)}｜${esc(types.join('、'))}</div>
+ <div class="${STAFF?'staffprice':'price'}">${STAFF?'員工價 ':''}${money(min)} 起</div>
+ <div class="chips">${colors.map(c=>`<span class="chip" title="${esc(c)}" style="background:${SWATCH[c]||'#ccc'}"></span>`).join('')}</div></button>`
+}
+
+async function openSeries(id){
+ const s=DATA.series.find(x=>x.id===id);
+ const types=[...new Set(s.items.map(i=>i.type))].sort((a,b)=>TYPE_ORDER.indexOf(a)-TYPE_ORDER.indexOf(b));
+ const type=filter!=='全部'&&types.includes(filter)?filter:types[0];
+ sel={s,type,size:null,color:null,gallery:[],photo:null,qty:1};
+ normalize();renderDetail();dlg.showModal();
+ try{const g=await get('action=gallery&series='+encodeURIComponent(id));if(sel&&sel.s.id===id){sel.gallery=g.images||[];renderDetail()}}catch(e){}
+}
+function normalize(){
+ const a=sel.s.items.filter(i=>i.type===sel.type);
+ const sizes=[...new Set(a.map(i=>i.size))];
+ if(!sizes.includes(sel.size))sel.size=sizes[0];
+ const b=a.filter(i=>i.size===sel.size);
+ if(!b.some(i=>i.color===sel.color))sel.color=b[0].color;
+}
+const current=()=>sel.s.items.find(i=>i.type===sel.type&&i.size===sel.size&&i.color===sel.color);
+function renderDetail(){
+ const s=sel.s,it=current();
+ const types=[...new Set(s.items.map(i=>i.type))].sort((a,b)=>TYPE_ORDER.indexOf(a)-TYPE_ORDER.indexOf(b));
+ const a=s.items.filter(i=>i.type===sel.type);
+ const sizes=[...new Map(a.map(i=>[i.size,i])).values()];
+ const colors=a.filter(i=>i.size===sel.size);
+ const main=sel.photo||it.img||sel.gallery[0]||'';
+ const thumbs=[...new Set([it.img,...sel.gallery].filter(Boolean))];
+ dlg.innerHTML=`<div class="detail"><div class="stage"><img class="main" referrerpolicy="no-referrer" src="${img(main,1200)}" alt="${esc(it.name)}">
+ ${thumbs.length>1?`<div class="thumbs">${thumbs.map(t=>`<button data-t="${esc(t)}" aria-current="${t===main}" aria-label="查看其他照片"><img loading="lazy" referrerpolicy="no-referrer" src="${img(t,160)}" alt=""></button>`).join('')}</div>`:''}</div>
+ <div class="panel"><button class="x" aria-label="關閉" data-close>×</button><h2>${esc(s.name)}</h2><div class="sub">${esc(it.sku)}</div>
+ ${types.length>1?`<fieldset><legend>品類</legend><div class="opts">${types.map(t=>`<button class="opt" aria-pressed="${t===sel.type}" data-type="${esc(t)}">${esc(t)}</button>`).join('')}</div></fieldset>`:''}
+ ${sizes.length>1||sizes[0].dim?`<fieldset><legend>尺寸</legend><div class="opts">${sizes.map(i=>`<button class="opt" aria-pressed="${i.size===sel.size}" data-size="${esc(i.size)}">${esc(i.size==='50×70'?'':i.size)} ${esc(i.dim)}</button>`).join('')}</div></fieldset>`:''}
+ <fieldset><legend>顏色</legend><div class="opts">${colors.map(i=>`<button class="opt" aria-pressed="${i.color===sel.color}" data-color="${esc(i.color)}">${i.colorCode?`<span class="chip" style="background:${SWATCH[i.colorCode]||'#ccc'}"></span>`:''}${esc(i.color)}</button>`).join('')}</div></fieldset>
+ <div class="bigprice">${money(shownPrice(it))}</div>${STAFF?`<div class="sub">員工價，售價 ${money(it.price)}</div>`:''}
+ ${STAFF?(DATA.open?`<div class="qty"><input id="qty" type="number" min="1" max="99" value="${sel.qty}" aria-label="數量"><button class="primary" id="add">加入訂購清單</button></div>`:`<p class="err">預購已截止。</p>`):`<p class="sub">想訂購請告訴門市人員品編 ${esc(it.sku)}，或私訊官方 LINE ${LINE}。</p>`}
+ <ul class="desc">${(it.desc||[]).map(l=>`<li>${esc(l)}</li>`).join('')}${it.note?`<li>${esc(it.note)}</li>`:''}</ul></div></div>`;
+ dlg.querySelector('[data-close]').onclick=()=>dlg.close();
+ dlg.querySelectorAll('[data-type]').forEach(b=>b.onclick=()=>{sel.type=b.dataset.type;sel.photo=null;normalize();renderDetail()});
+ dlg.querySelectorAll('[data-size]').forEach(b=>b.onclick=()=>{sel.size=b.dataset.size;sel.photo=null;normalize();renderDetail()});
+ dlg.querySelectorAll('[data-color]').forEach(b=>b.onclick=()=>{sel.color=b.dataset.color;sel.photo=null;renderDetail()});
+ dlg.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{sel.photo=b.dataset.t;renderDetail()});
+ const add=$('#add',dlg);if(add)add.onclick=()=>{
+  const q=Math.floor(Number($('#qty',dlg).value));if(!(q>=1&&q<=99)){$('#qty',dlg).focus();return}
+  const ex=cart.find(c=>c.sku===it.sku);if(ex)ex.qty=Math.min(99,ex.qty+q);else cart.push({sku:it.sku,qty:q});
+  saveCart();dlg.close();renderShop();
+ };
+}
+
+function openCart(){
+ const m=skuMap();cart=cart.filter(c=>m[c.sku]);
+ const total=cart.reduce((a,c)=>a+m[c.sku].staff*c.qty,0);
+ const v=window.__form||{};
+ dlg.innerHTML=`<div class="cart"><button class="x" aria-label="關閉" data-close>×</button><h2>訂購清單</h2>
+ ${cart.length?cart.map(c=>`<div class="row"><div>${esc(m[c.sku].name)}<br><small>${esc(c.sku)}</small></div><div>${money(m[c.sku].staff*c.qty)}</div>
+ <div><label>數量 <input type="number" min="1" max="99" value="${c.qty}" data-q="${esc(c.sku)}" style="width:64px;padding:4px"></label></div><div><button class="linkbtn" data-rm="${esc(c.sku)}">移除</button></div></div>`).join(''):'<p class="sub">清單是空的，先回型錄挑選款式。</p>'}
+ ${cart.length?`<p class="bigprice">合計 ${money(total)}</p>
+ <form id="of"><label class="f">姓名<input name="name" required maxlength="30" value="${esc(v.name)}" autocomplete="name"></label>
+ <label class="f">電話<input name="phone" required maxlength="20" inputmode="tel" value="${esc(v.phone)}" autocomplete="tel"></label>
+ <label class="f">部門<input name="dept" required maxlength="30" value="${esc(v.dept)}"></label>
+ <label class="f">備註<textarea name="note" rows="2" maxlength="200">${esc(v.note)}</textarea></label>
+ <label style="display:flex;gap:8px;margin-top:14px;font-size:14px"><input type="checkbox" required> <span>我已確認尺寸。韓國床的尺寸與台灣不同，尺寸不適用恕無法退換；送出後如需修改或取消，請私訊官方 LINE ${LINE}。</span></label>
+ <p class="err" id="oe" hidden></p><button class="primary" style="margin-top:14px;width:100%">送出訂單</button></form>`:''}</div>`;
+ dlg.querySelector('[data-close]').onclick=()=>dlg.close();
+ dlg.querySelectorAll('[data-q]').forEach(i=>i.onchange=()=>{keep();const c=cart.find(x=>x.sku===i.dataset.q);c.qty=Math.max(1,Math.min(99,Math.floor(Number(i.value))||1));saveCart();openCart();renderShopKeep()});
+ dlg.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{keep();cart=cart.filter(c=>c.sku!==b.dataset.rm);saveCart();openCart();renderShopKeep()});
+ const f=$('#of',dlg);if(f)f.onsubmit=async e=>{
+  e.preventDefault();const d=Object.fromEntries(new FormData(f));const btn=f.querySelector('.primary'),er=$('#oe',dlg);
+  btn.disabled=true;btn.textContent='送出中';er.hidden=true;
+  window.__token=window.__token||(Date.now()+'-'+Math.random().toString(36).slice(2));
+  try{const r=await post({action:'order',token:window.__token,items:cart,...d});
+   window.__token=null;cart=[];saveCart();renderShopKeep();
+   dlg.innerHTML=`<div class="cart"><button class="x" aria-label="關閉" data-close>×</button><h2>訂單已送出</h2><div class="ok">訂單編號 <b>${esc(r.orderId)}</b><br>合計 ${money(r.total)}</div><p>付款方式為匯款或現金，請截圖保留訂單編號。如需修改或取消，請私訊官方 LINE ${LINE}。</p><button class="primary" data-close>回到型錄</button></div>`;
+   dlg.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>dlg.close());
+  }catch(x){er.textContent=(x.message||'送出失敗')+' 訂單尚未確認，請再按一次；若仍失敗請私訊官方 LINE。';er.hidden=false;btn.disabled=false;btn.textContent='送出訂單'}
+ };
+ if(!dlg.open)dlg.showModal();
+ function keep(){const f=$('#of',dlg);if(f)window.__form=Object.fromEntries(new FormData(f))}
+}
+function renderShopKeep(){renderShop()}
+
+/* 後台 */
+let AD=null,tab='orders';
+function adminLogin(msg){
+ $('#app').innerHTML=`<div class="cart"><h2>預購後台</h2><form id="lf"><label class="f">密碼<input type="password" name="p" required autocomplete="current-password"></label>${msg?`<p class="err">${esc(msg)}</p>`:''}<button class="primary" style="margin-top:12px">登入</button></form></div>`;
+ $('#lf').onsubmit=async e=>{e.preventDefault();pw=new FormData(e.target).get('p');await loadAdmin()};
+}
+async function loadAdmin(){
+ try{AD=await post({action:'admin_data',password:pw});renderAdmin()}catch(x){adminLogin(x.message)}
+}
+function csv(name,rows){
+ const q=v=>{let s=String(v??'');if(/^[=+\-@]/.test(s))s="'"+s;return '"'+s.replace(/"/g,'""')+'"'};
+ const b=new Blob(['﻿'+rows.map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'});
+ const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);
+}
+function renderAdmin(){
+ const T={orders:'訂單明細',summary:'叫貨彙總',add:'代客下單'};
+ const tot=AD.summary.reduce((a,r)=>({q:a.q+r.qty,k:a.k+r.qty*r.krw,s:a.s+r.qty*r.ship,c:a.c+r.qty*r.cost}),{q:0,k:0,s:0,c:0});
+ let body='';
+ if(tab==='orders')body=`<div class="bar"><button class="ghost" id="xo">下載明細 CSV</button><span class="sub">共 ${AD.orders.length} 筆</span></div><div class="tablewrap"><table><tr><th>訂單</th><th>時間</th><th>姓名</th><th>電話</th><th>部門</th><th>類型</th><th>品項</th><th class="n">金額</th><th>付款</th><th>方式</th><th>備註</th></tr>
+ ${AD.orders.map(o=>`<tr><td>${esc(o.id)}</td><td>${esc(o.date)}</td><td>${esc(o.name)}</td><td>${esc(o.phone)}</td><td>${esc(o.dept)}</td><td>${esc(o.kind)}</td><td>${o.lines.map(l=>`${esc(l.sku)} ×${l.qty}<br><small>${esc(l.name)}</small>`).join('<br>')}</td><td class="n">${money(o.total)}</td>
+ <td>${o.editable?`<select data-pay="${esc(o.id)}">${['未付','已付'].map(p=>`<option ${o.pay===p?'selected':''}>${p}</option>`).join('')}</select>`:esc(o.pay)}</td><td>${o.editable?`<select data-method="${esc(o.id)}">${['','現金','匯款'].map(p=>`<option ${o.method===p?'selected':''}>${p}</option>`).join('')}</select>`:esc(o.method)}</td><td>${esc(o.note)}</td></tr>`).join('')}</table></div>`;
+ if(tab==='summary')body=`<div class="bar"><button class="ghost" id="xs">下載叫貨 CSV</button><span class="sub">${tot.q} 件｜韓幣 ${num(tot.k)}｜運費 ${money(tot.s)}｜預估成本 ${money(tot.c)}</span></div><div class="tablewrap"><table><tr><th>品編</th><th class="n">數量</th><th>品項</th><th class="n">韓幣單價</th><th class="n">韓幣小計</th><th class="n">運費小計</th><th class="n">預估成本</th><th>賣家</th><th>型錄</th></tr>
+ ${AD.summary.map(r=>`<tr><td>${esc(r.sku)}</td><td class="n">${r.qty}</td><td>${esc(r.name)}</td><td class="n">${num(r.krw)}</td><td class="n">${num(r.qty*r.krw)}</td><td class="n">${num(r.qty*r.ship)}</td><td class="n">${num(r.qty*r.cost)}</td><td>${safeUrl(r.seller)?`<a href="${esc(safeUrl(r.seller))}" target="_blank" rel="noopener">開啟</a>`:'<span class="err">缺連結</span>'}</td><td>${safeUrl(r.folder)?`<a href="${esc(safeUrl(r.folder))}" target="_blank" rel="noopener">開啟</a>`:''}</td></tr>`).join('')}</table></div>`;
+ if(tab==='add')body=`<form id="af" class="cart" style="margin:0;padding:0"><label class="f">類型<select name="kind"><option>客戶</option><option>員工</option></select></label>
+ <label class="f">姓名<input name="name" required></label><label class="f">電話<input name="phone" required inputmode="tel"></label><label class="f">部門（客戶免填）<input name="dept"></label>
+ <label class="f">品項，一行一筆「品編 數量」<textarea name="lines" rows="5" required placeholder="KRBL001DS-BL 1"></textarea></label><label class="f">備註<input name="note"></label>
+ <p class="err" id="ae" hidden></p><button class="primary" style="margin-top:12px">建立訂單</button></form>
+ <p class="sub">客戶訂單以售價計算，員工訂單以員工價計算；截止後仍可在這裡建立。可用品編共 ${AD.skus.length} 個。</p>`;
+ $('#app').innerHTML=`<div class="wrap"><header class="top"><h1 style="font-size:36px">預購後台</h1></header>
+ <div class="bar"><span>員工預購：${AD.open?'開放中':'已關閉'}（截止 ${fmtDeadline(AD.deadline)}）</span><button class="ghost" id="tg">${AD.closed?'重新開放':'立即關閉'}</button><button class="ghost" id="rf">重新整理</button></div>
+ <div class="tabs">${Object.keys(T).map(k=>`<button class="pill" aria-pressed="${k===tab}" data-tab="${k}">${T[k]}</button>`).join('')}</div>${body}</div>`;
+ $('#app').querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;renderAdmin()});
+ $('#rf').onclick=loadAdmin;
+ $('#tg').onclick=async()=>{await post({action:'admin_toggle',password:pw,closed:!AD.closed});loadAdmin()};
+ const xo=$('#xo');if(xo)xo.onclick=()=>csv('韓被訂單明細.csv',[['訂單編號','時間','姓名','電話','部門','類型','品編','數量','品項','單價','付款狀態','付款方式','備註'],...AD.orders.flatMap(o=>o.lines.map(l=>[o.id,o.date,o.name,o.phone,o.dept,o.kind,l.sku,l.qty,l.name,l.unit,o.pay,o.method,o.note]))]);
+ const xs=$('#xs');if(xs)xs.onclick=()=>csv('韓被叫貨彙總.csv',[['品編','數量','品項','韓幣單價','韓幣小計','運費單價','運費小計','預估成本','賣家連結','型錄連結'],...AD.summary.map(r=>[r.sku,r.qty,r.name,Math.round(r.krw),Math.round(r.qty*r.krw),Math.round(r.ship),Math.round(r.qty*r.ship),Math.round(r.qty*r.cost),r.seller,r.folder])]);
+ $('#app').querySelectorAll('[data-pay],[data-method]').forEach(s=>s.onchange=async()=>{
+  const id=s.dataset.pay||s.dataset.method,tr=s.closest('tr');
+  try{await post({action:'admin_pay',password:pw,id,pay:$('[data-pay]',tr).value,method:$('[data-method]',tr).value});const o=AD.orders.find(x=>x.id===id);o.pay=$('[data-pay]',tr).value;o.method=$('[data-method]',tr).value}catch(x){alertErr(x.message)}
+ });
+ const af=$('#af');if(af)af.onsubmit=async e=>{
+  e.preventDefault();const d=Object.fromEntries(new FormData(af)),er=$('#ae');er.hidden=true;
+  const items=d.lines.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const[s,q]=l.split(/\s+/);return{sku:s,qty:Number(q||1)}});
+  try{const r=await post({action:'admin_order',password:pw,token:Date.now()+'-'+Math.random(),kind:d.kind,name:d.name,phone:d.phone,dept:d.dept,note:d.note,items});tab='orders';await loadAdmin();}catch(x){er.textContent=x.message;er.hidden=false}
+ };
+}
+function alertErr(m){const p=document.createElement('p');p.className='err';p.textContent=m;$('#app .wrap').prepend(p)}
+
+dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
+(async()=>{
+ if(ADMIN)return adminLogin();
+ try{DATA=await get(STAFF?'staff=1':'');renderShop()}
+ catch(x){$('#app').innerHTML=`<div class="center">型錄暫時無法載入：${esc(x.message)}。請重新整理，或私訊官方 LINE ${LINE}。</div>`}
+})();
+</script>
+</body>
+</html>
