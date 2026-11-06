@@ -125,6 +125,7 @@ td select{padding:4px;border:1px solid var(--line);background:#fff}
 .ptab tr:nth-child(even) td{background:#FAF7F2}
 .ptab .n{text-align:right;white-space:nowrap}
 .ptab small{color:var(--soft)}
+.sheet.dense .sh-main{height:92mm}.sheet.dense .sh-thumbs{height:32mm}.sheet.dense .ptab{font-size:8.5pt}.sheet.dense .ptab td{padding:1.1mm 2mm}.sheet.dense .sh-body{margin-top:4mm}
 .sh-foot{display:flex;justify-content:space-between;font-size:8pt;color:var(--soft);border-top:.3mm solid var(--line);padding-top:2.5mm;margin-top:3mm}
 .sh-info{font-size:10.5pt;line-height:1.8}
 .sh-info h3{font-size:13pt;color:var(--head);margin:7mm 0 2mm}
@@ -377,7 +378,7 @@ async function renderPrint(){
   const quilt=s.items.find(i=>!i.type.includes('枕套')&&i.type!=='床墊')||s.items[0];
   const desc=(quilt.desc||[]).filter(l=>!/^顏色|尺寸|^枕/.test(l));
   const pr=set=>{const a=[...set];const mn=Math.min(...a),mx=Math.max(...a);return mn===mx?money(mn):money(mn)+'–'+num(mx)};
-  return `<section class="sheet"><div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div>
+  return `<section class="sheet${groups.length>5?' dense':''}"><div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div>
   <div class="sh-title"><h2>${esc(s.name)}</h2><span>${esc(s.id)}</span></div>
   <div class="sh-main">${main?`<img referrerpolicy="no-referrer" src="${img(main,1600)}" alt="">`:''}</div>
   ${pool.length?`<div class="sh-thumbs">${[0,1,2,3].map(n=>`<div>${pool[n]?`<img referrerpolicy="no-referrer" src="${img(pool[n],700)}" alt="">`:''}</div>`).join('')}</div>`:''}
@@ -399,7 +400,7 @@ async function renderPrint(){
   <div class="sheets">${pages.join('')}${info}</div>`;
  $('#pstaff').onchange=e=>{location.search='?view=print'+(e.target.checked?'&staff=1':'')};
  $('#pp').onclick=()=>window.print();
- const imgs=[...document.querySelectorAll('.sheet img')];let done=0;const tick=()=>{done++;if(done>=imgs.length)$('#pst').textContent=`共 ${pages.length+1} 頁，可以列印了`};
+ const imgs=[...document.querySelectorAll('.sheet img')];let done=0;imgs.forEach(i=>i.addEventListener('error',()=>{i.style.visibility='hidden'}));const tick=()=>{done++;if(done>=imgs.length)$('#pst').textContent=`共 ${pages.length+1} 頁，可以列印了`};
  imgs.forEach(i=>{if(i.complete)tick();else{i.onload=tick;i.onerror=tick}});if(!imgs.length)tick();
 }
 dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
