@@ -144,6 +144,14 @@ td select{padding:4px;border:1px solid var(--line);background:#fff}
 .mat .grid2 div{border-top:.3mm solid var(--line);padding-top:2mm}
 .mat b{color:var(--head)}
 .sku{display:block;font-size:7.5pt;color:var(--soft);letter-spacing:.02em}
+.editing [data-edit]{outline:1px dashed var(--accent);outline-offset:1mm;cursor:text}
+.editing [data-edit]:focus{outline:2px solid var(--accent);background:#FFFDF8}
+.editing [data-img]{cursor:pointer;position:relative}
+.editing [data-img]:hover{outline:3px solid var(--accent);outline-offset:-3px}
+.slot-empty{display:flex;align-items:center;justify-content:center;height:100%;color:var(--soft);font-size:9pt}
+.sheet{position:relative}
+.resetpage{position:absolute;top:3mm;right:3mm;z-index:3;font-size:12px;background:#fff;border:1px solid var(--line);padding:3px 8px}
+@media print{.resetpage,.slot-empty{display:none}.editing [data-edit]{outline:none}}
 .sh-foot{display:flex;justify-content:space-between;font-size:8pt;color:var(--soft);border-top:.3mm solid var(--line);padding-top:2.5mm;margin-top:3mm}
 .sh-info{font-size:10.5pt;line-height:1.8}
 .sh-info h3{font-size:13pt;color:var(--head);margin:7mm 0 2mm}
@@ -384,46 +392,22 @@ function sizeLabel(i){if(i.type.includes('枕套'))return '';if(i.type==='四季
 function qrSvg(text){try{const q=qrcode(0,'M');q.addData(text);q.make();return q.createSvgTag({cellSize:4,margin:0,scalable:true})}catch(e){return ''}}
 function skuLine(list){const pre={};list.forEach(s=>{const [a,b]=s.split('-');(pre[a]=pre[a]||[]).push(b)});return Object.entries(pre).map(([a,b])=>b[0]===undefined?a:a+'-'+b.join('/')).join('、')}
 const SITE=location.origin+location.pathname;
+let PD=null,CFG={},DIRTY=new Set(),EDIT=false;
+const ALLOWED_TAGS=new Set(['H2','H3','P','B','STRONG','BR','DIV','SPAN','UL','OL','LI','TABLE','TBODY','THEAD','TR','TH','TD','SMALL','I','EM']);
+function cleanHtml(html){const doc=new DOMParser().parseFromString('<div>'+html+'</div>','text/html');const walk=n=>{[...n.children].forEach(c=>{if(!ALLOWED_TAGS.has(c.tagName)){c.replaceWith(...c.childNodes);return walk(n)}[...c.attributes].forEach(a=>{if(a.name!=='class')c.removeAttribute(a.name)});walk(c)})};const root=doc.body.firstChild;walk(root);return root.innerHTML}
+const cfg=(k)=>CFG[k]||(CFG[k]={});
 async function renderPrint(){
  const showStaff=new URLSearchParams(location.search).get('staff')==='1';
  $('#app').innerHTML='<div class="center">準備型錄中</div>';
- let data;try{data=await get(showStaff?'staff=1':'')}catch(x){$('#app').innerHTML=`<div class="center">型錄無法載入：${esc(x.message)}</div>`;return}
- const gals=await Promise.all(data.series.map(s=>get('action=gallery&series='+s.id).then(g=>g.images||[]).catch(()=>[])));
- const pages=data.series.map((s,k)=>{
-  const def=(s.items.find(i=>i.img)||{}).img;const main=s.cover||def;
-  const pool=[...new Set([...gals[k],...s.items.map(i=>i.img)].filter(p=>p&&p!==main))].slice(0,4);
-  const groups=[];const key={};
-  [...s.items].sort((a,b)=>TYPE_ORDER.indexOf(a.type)-TYPE_ORDER.indexOf(b.type)||['BB','S','Q','K','50×70'].indexOf(a.size)-['BB','S','Q','K','50×70'].indexOf(b.size)).forEach(i=>{
-   const g=i.type+'|'+i.size;if(!key[g]){key[g]={type:i.type,size:sizeLabel(i),dim:dimOf(i),prices:new Set(),staff:new Set(),colors:[],skus:[]};groups.push(key[g])}
-   key[g].prices.add(i.price);if(i.staff)key[g].staff.add(i.staff);key[g].colors.push(i.color);key[g].skus.push(i.sku)});
-  const colors=[...new Map(s.items.map(i=>[i.color,i])).values()];
-  const quilt=s.items.find(i=>!i.type.includes('枕套')&&i.type!=='床墊')||s.items[0];
-  const desc=(quilt.desc||[]).filter(l=>!/^顏色|尺寸|^枕/.test(l));
-  const pr=set=>{const a=[...set];const mn=Math.min(...a),mx=Math.max(...a);return mn===mx?money(mn):money(mn)+'–'+num(mx)};
-  return `<section class="sheet"><div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div>
-  <div class="sh-title"><h2>${esc(s.name)}</h2><span>${esc(s.id)}</span></div>
-  <div class="sh-main">${main?`<img referrerpolicy="no-referrer" src="${img(main,1600)}" alt="">`:''}</div>
-  ${pool.length?`<div class="sh-thumbs">${[0,1,2,3].map(n=>`<div>${pool[n]?`<img referrerpolicy="no-referrer" src="${img(pool[n],700)}" alt="">`:''}</div>`).join('')}</div>`:''}
-  <div class="sh-body"><div>${desc.length?`<h3>商品說明</h3><ul>${desc.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`:''}
-   <h3>顏色</h3><div class="sh-sw">${colors.map(i=>`<span><i style="background:${SWATCH[i.colorCode]||'#fff'}"></i>${esc(i.color)}</span>`).join('')}</div></div>
-   <div><table class="ptab"><tr><th>品項</th><th>尺寸</th><th class="n">售價</th>${showStaff?'<th class="n">員工價</th>':''}</tr>
-   ${groups.map(g=>`<tr><td>${esc(g.type)}${g.size?' '+esc(g.size):''} <small>${esc([...new Set(g.colors)].join('、'))}</small><span class="sku">${esc(skuLine(g.skus))}</span></td><td>${esc(g.dim)}</td><td class="n">${pr(g.prices)}</td>${showStaff?`<td class="n">${g.staff.size?pr(g.staff):''}</td>`:''}</tr>`).join('')}</table></div></div>
-  <div class="sh-foot"><span>尺寸因生產批次不同，±5 cm 為合理誤差範圍${s.id==='KRBL006'?'｜本款可烘乾':'｜可機洗，不可烘乾'}</span><span>官方 LINE ${LINE}｜${k+3}</span></div></section>`});
- const qp=new URLSearchParams(location.search);const coverId=qp.get('cover')||'KRBL003';
- const cs=data.series.find(s=>s.id===coverId)||data.series[0];const coverImg=cs.cover||(cs.items.find(i=>i.img)||{}).img;
- const orderUrl=showStaff?SITE+'?view=staff':SITE;
- const qrBlock=`<div class="qrs"><div class="qr">${qrSvg(LINE_URL)}加入官方 LINE</div><div class="qr">${qrSvg(orderUrl)}${showStaff?'員工線上下單':'線上看型錄'}</div></div>`;
- const info=`<section class="sheet"><div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div><div class="sh-info">
-  <div class="sh-title"><h2>尺寸與注意事項</h2></div><p>韓國寢具尺寸與台灣規格不同，購買前請先量床。因工廠生產批次不同，尺寸正負 5 cm 為合理誤差範圍。</p>
-  <h3>棉被</h3><table class="ptab"><tr><th>尺寸</th><th>規格</th><th>參考</th></tr><tr><td>S 單人</td><td>150×200 cm</td><td>接近台灣標準雙人</td></tr><tr><td>Q 雙人</td><td>200×230 cm</td><td>接近台灣雙人加大</td></tr><tr><td>BB 童被</td><td>100×150 cm</td><td></td></tr></table>
-  <h3>床墊</h3><table class="ptab"><tr><th>尺寸</th><th>規格</th></tr><tr><td>S 單人</td><td>120×200 cm</td></tr><tr><td>Q 雙人</td><td>155×205 cm</td></tr><tr><td>K 雙人加大</td><td>180×220 cm</td></tr></table>
-  <h3>洗滌</h3><p>棉被可機洗，建議搭配洗衣袋，洗後勿直曬太陽。除 KRBL006 可烘乾外，其餘皆不可烘乾。</p>
-  <h3>退換貨</h3><p>韓國床的尺寸與台灣不同，尺寸不適用恕無法退換。商品顏色依實品為準，色差不列入退換理由。</p>
-  <h3>訂購與詢問</h3><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:8mm"><p>官方 LINE ${LINE}<br>永美室內裝修設計有限公司<br>新北市永和區自由街55號1樓<br>(02)2923-0218</p>${qrBlock}</div></div><div style="flex:1"></div><div class="sh-foot"><span></span><span>${pages.length+3}</span></div></section>`;
- const cover=`<section class="sheet cover"><div class="cv-img">${coverImg?`<img referrerpolicy="no-referrer" src="${img(coverImg,2000)}" alt="">`:''}</div>
-  <div class="cv-panel"><div><small>YUNGMEI LIVING 永美家居</small><h1>韓國寢具型錄</h1><p>2026 冬季｜四季被・冬被・枕套・床墊</p><p style="margin-top:2mm;color:var(--soft);font-size:9.5pt">韓國直送，共 ${data.series.length} 個系列${showStaff?'｜員工價版本':''}</p></div>${qrBlock}</div></section>`;
- const mat=`<section class="sheet"><div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div><div class="mat">
-  <div class="sh-title"><h2>材質與挑選指南</h2></div>
+ try{
+  const [data,conf]=await Promise.all([get(showStaff?'staff=1':''),get('action=print').catch(()=>({cfg:{}}))]);
+  const gals=await Promise.all(data.series.map(s=>get('action=gallery&series='+s.id).then(g=>g.images||[]).catch(()=>[])));
+  CFG={};Object.entries(conf.cfg||{}).forEach(([k,v])=>{try{CFG[k]=JSON.parse(v)}catch(e){}});
+  PD={data,gals:Object.fromEntries(data.series.map((s,k)=>[s.id,gals[k]])),showStaff};
+ }catch(x){$('#app').innerHTML=`<div class="center">型錄無法載入：${esc(x.message)}</div>`;return}
+ drawPrint();
+}
+const MAT_DEFAULT=`<div class="sh-title"><h2>材質與挑選指南</h2></div>
   <h3>布料材質</h3><div class="grid2">
    <div><b>天絲</b><br>以木漿製成的再生纖維，表面平滑、觸感涼爽，吸濕透氣，適合怕悶熱或容易流汗的人。本型錄標示「純天絲」的款式為 100% 天絲。</div>
    <div><b>極細纖維</b><br>纖維細、觸感柔軟蓬鬆，保暖性好、乾得快，日常清洗好照顧。與天絲混紡的款式兼具柔軟與透氣。</div>
@@ -436,19 +420,103 @@ async function renderPrint(){
   <h3>其他品項</h3><div class="grid2">
    <div><b>枕套</b><br>統一為 50×70 cm，可與同系列棉被搭配成套。</div>
    <div><b>床墊</b><br>鋪在床墊上方使用的薄墊，增加柔軟度並保護床墊。尺寸請參考最後一頁。</div></div>
-  <h3>挑選小提醒</h3><p>韓國棉被 S 尺寸（150×200 cm）接近台灣標準雙人被，Q 尺寸（200×230 cm）接近台灣雙人加大被。購買前請先量床，因生產批次不同，尺寸可能有正負 5 cm 誤差。</p>
-  </div><div style="flex:1"></div><div class="sh-foot"><span>商品說明僅供參考，實際以商品標示為準</span><span>2</span></div></section>`;
- const opts=data.series.map(s=>`<option value="${esc(s.id)}" ${s.id===cs.id?'selected':''}>${esc(s.id)} ${esc(s.name)}</option>`).join('');
- $('#app').innerHTML=`<div class="ptool"><b>型錄輸出</b><span class="sub" id="pst">共 ${pages.length+3} 頁，圖片載入中</span>
-  <label>封面圖 <select id="pcover">${opts}</select></label>
-  <label><input type="checkbox" id="pstaff" ${showStaff?'checked':''}> 顯示員工價</label>
-  <button class="primary" id="pp">列印 / 存成 PDF</button><a href="?view=admin">回後台</a></div>
-  <div class="sheets">${cover}${mat}${pages.join('')}${info}</div>`;
+  <h3>挑選小提醒</h3><p>韓國棉被 S 尺寸（150×200 cm）接近台灣標準雙人被，Q 尺寸（200×230 cm）接近台灣雙人加大被。購買前請先量床，因生產批次不同，尺寸可能有正負 5 cm 誤差。</p>`;
+const INFO_DEFAULT=`<div class="sh-title"><h2>尺寸與注意事項</h2></div><p>韓國寢具尺寸與台灣規格不同，購買前請先量床。因工廠生產批次不同，尺寸正負 5 cm 為合理誤差範圍。</p>
+  <h3>棉被</h3><table class="ptab"><tr><th>尺寸</th><th>規格</th><th>參考</th></tr><tr><td>S 單人</td><td>150×200 cm</td><td>接近台灣標準雙人</td></tr><tr><td>Q 雙人</td><td>200×230 cm</td><td>接近台灣雙人加大</td></tr><tr><td>BB 童被</td><td>100×150 cm</td><td></td></tr></table>
+  <h3>床墊</h3><table class="ptab"><tr><th>尺寸</th><th>規格</th></tr><tr><td>S 單人</td><td>120×200 cm</td></tr><tr><td>Q 雙人</td><td>155×205 cm</td></tr><tr><td>K 雙人加大</td><td>180×220 cm</td></tr></table>
+  <h3>洗滌</h3><p>棉被可機洗，建議搭配洗衣袋，洗後勿直曬太陽。除 KRBL006 可烘乾外，其餘皆不可烘乾。</p>
+  <h3>退換貨</h3><p>韓國床的尺寸與台灣不同，尺寸不適用恕無法退換。商品顏色依實品為準，色差不列入退換理由。</p>`;
+function slot(key,series,id,w,cls=''){
+ const has=id&&id!=='-';
+ return `<div class="${cls}" data-img="${esc(key)}" data-series="${esc(series)}">${has?`<img referrerpolicy="no-referrer" src="${img(id,w)}" alt="">`:(EDIT?'<span class="slot-empty">點擊選圖</span>':'')}</div>`;
+}
+function drawPrint(){
+ const {data,gals,showStaff}=PD;
+ const C=CFG.COVER||{};
+ const pages=data.series.map((s,k)=>{
+  const key='S_'+s.id,c=CFG[key]||{};
+  const def=(s.items.find(i=>i.img)||{}).img;const main=c.main||s.cover||def;
+  const auto=[...new Set([...(gals[s.id]||[]),...s.items.map(i=>i.img)].filter(p=>p&&p!==main))];
+  const th=[0,1,2,3].map(n=>c.thumbs&&c.thumbs[n]!==undefined&&c.thumbs[n]!==null?c.thumbs[n]:auto[n]);
+  const showThumbs=EDIT||th.some(t=>t&&t!=='-');
+  const groups=[];const gk={};
+  [...s.items].sort((a,b)=>TYPE_ORDER.indexOf(a.type)-TYPE_ORDER.indexOf(b.type)||['BB','S','Q','K','50×70'].indexOf(a.size)-['BB','S','Q','K','50×70'].indexOf(b.size)).forEach(i=>{
+   const g=i.type+'|'+i.size;if(!gk[g]){gk[g]={type:i.type,size:sizeLabel(i),dim:dimOf(i),prices:new Set(),staff:new Set(),colors:[],skus:[]};groups.push(gk[g])}
+   gk[g].prices.add(i.price);if(i.staff)gk[g].staff.add(i.staff);gk[g].colors.push(i.color);gk[g].skus.push(i.sku)});
+  const colors=[...new Map(s.items.map(i=>[i.color,i])).values()];
+  const quilt=s.items.find(i=>!i.type.includes('枕套')&&i.type!=='床墊')||s.items[0];
+  const descLines=(quilt.desc||[]).filter(l=>!/^顏色|尺寸|^枕/.test(l));
+  const descHtml=c.desc!==undefined?cleanHtml(c.desc):(descLines.length?`<h3>商品說明</h3><ul>${descLines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`:'');
+  const pr=set=>{const a=[...set];const mn=Math.min(...a),mx=Math.max(...a);return mn===mx?money(mn):money(mn)+'–'+num(mx)};
+  return `<section class="sheet" data-key="${key}">${EDIT?`<button class="resetpage" data-reset-page="${key}">還原此頁</button>`:''}<div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div>
+  <div class="sh-title"><h2 data-edit="${key}.name">${esc(c.name||s.name)}</h2><span>${esc(s.id)}</span></div>
+  ${slot(key+'.main',s.id,main,1600,'sh-main')}
+  ${showThumbs?`<div class="sh-thumbs">${th.map((t,n)=>slot(key+'.thumbs.'+n,s.id,t,700)).join('')}</div>`:''}
+  <div class="sh-body"><div><div data-edit="${key}.desc" data-html="1">${descHtml}</div>
+   <h3>顏色</h3><div class="sh-sw">${colors.map(i=>`<span><i style="background:${SWATCH[i.colorCode]||'#fff'}"></i>${esc(i.color)}</span>`).join('')}</div></div>
+   <div><table class="ptab"><tr><th>品項</th><th>尺寸</th><th class="n">售價</th>${showStaff?'<th class="n">員工價</th>':''}</tr>
+   ${groups.map(g=>`<tr><td>${esc(g.type)}${g.size?' '+esc(g.size):''} <small>${esc([...new Set(g.colors)].join('、'))}</small><span class="sku">${esc(skuLine(g.skus))}</span></td><td>${esc(g.dim)}</td><td class="n">${pr(g.prices)}</td>${showStaff?`<td class="n">${g.staff.size?pr(g.staff):''}</td>`:''}</tr>`).join('')}</table></div></div>
+  <div class="sh-foot"><span>尺寸因生產批次不同，±5 cm 為合理誤差範圍${s.id==='KRBL006'?'｜本款可烘乾':'｜可機洗，不可烘乾'}</span><span>官方 LINE ${LINE}｜${k+3}</span></div></section>`});
+ const orderUrl=showStaff?SITE+'?view=staff':SITE;
+ const qrBlock=`<div class="qrs"><div class="qr">${qrSvg(LINE_URL)}加入官方 LINE</div><div class="qr">${qrSvg(orderUrl)}${showStaff?'員工線上下單':'線上看型錄'}</div></div>`;
+ const cs=data.series.find(s=>s.id==='KRBL003')||data.series[0];
+ const coverImg=C.img||cs.cover||(cs.items.find(i=>i.img)||{}).img;
+ const cover=`<section class="sheet cover" data-key="COVER">${EDIT?`<button class="resetpage" data-reset-page="COVER">還原此頁</button>`:''}${slot('COVER.img','',coverImg,2000,'cv-img')}
+  <div class="cv-panel"><div><small>YUNGMEI LIVING 永美家居</small><h1 data-edit="COVER.title">${esc(C.title||'韓國寢具型錄')}</h1><p data-edit="COVER.sub">${esc(C.sub||'2026 冬季｜四季被・冬被・枕套・床墊')}</p><p data-edit="COVER.note" style="margin-top:2mm;color:var(--soft);font-size:9.5pt">${esc(C.note!==undefined?C.note:'韓國直送')}</p>${showStaff?'<p style="color:var(--soft);font-size:9.5pt">員工價版本</p>':''}</div>${qrBlock}</div></section>`;
+ const mat=`<section class="sheet" data-key="MAT">${EDIT?`<button class="resetpage" data-reset-page="MAT">還原此頁</button>`:''}<div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div><div class="mat" data-edit="MAT.html" data-html="1">${CFG.MAT&&CFG.MAT.html?cleanHtml(CFG.MAT.html):MAT_DEFAULT}</div><div style="flex:1"></div><div class="sh-foot"><span>商品說明僅供參考，實際以商品標示為準</span><span>2</span></div></section>`;
+ const info=`<section class="sheet" data-key="INFO">${EDIT?`<button class="resetpage" data-reset-page="INFO">還原此頁</button>`:''}<div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div><div class="sh-info"><div data-edit="INFO.html" data-html="1">${CFG.INFO&&CFG.INFO.html?cleanHtml(CFG.INFO.html):INFO_DEFAULT}</div>
+  <h3>訂購與詢問</h3><div style="display:flex;justify-content:space-between;align-items:flex-end;gap:8mm"><p>官方 LINE ${LINE}<br>永美室內裝修設計有限公司<br>新北市永和區自由街55號1樓<br>(02)2923-0218</p>${qrBlock}</div></div><div style="flex:1"></div><div class="sh-foot"><span></span><span>${pages.length+3}</span></div></section>`;
+ const total=pages.length+3;
+ $('#app').innerHTML=`<div class="ptool"><b>型錄輸出</b><span class="sub" id="pst">共 ${total} 頁，圖片載入中</span>
+  ${EDIT?`<span class="sub">點文字直接修改，點圖片換圖</span><input type="password" id="ppw" placeholder="後台密碼" value="${esc(pw)}" style="padding:6px;border:1px solid var(--line);width:120px"><button class="primary" id="psave">儲存修改${DIRTY.size?`（${DIRTY.size}）`:''}</button><button class="ghost" id="pdone">完成編輯</button>`
+  :`<button class="ghost" id="pedit">編輯內容與圖片</button><label><input type="checkbox" id="pstaff" ${showStaff?'checked':''}> 顯示員工價</label><button class="primary" id="pp">列印 / 存成 PDF</button>`}
+  <a href="?view=admin">回後台</a><span class="err" id="perr" hidden></span></div>
+  <div class="sheets${EDIT?' editing':''}">${cover}${mat}${pages.join('')}${info}</div>`;
  document.querySelectorAll('.sheet').forEach(s=>{const b=s.querySelector('.sh-body');const over=()=>b&&b.scrollHeight>b.clientHeight+1;if(over())s.classList.add('dense');if(over())s.classList.add('denser')});
- const go=()=>{location.search='?view=print'+($('#pstaff').checked?'&staff=1':'')+'&cover='+$('#pcover').value};$('#pstaff').onchange=go;$('#pcover').onchange=go;
- $('#pp').onclick=()=>window.print();
- const imgs=[...document.querySelectorAll('.sheet img')];let done=0;imgs.forEach(i=>i.addEventListener('error',()=>{i.style.visibility='hidden'}));const tick=()=>{done++;if(done>=imgs.length)$('#pst').textContent=`共 ${pages.length+3} 頁，可以列印了`};
+ const imgs=[...document.querySelectorAll('.sheet img')];let done=0;imgs.forEach(i=>i.addEventListener('error',()=>{i.style.visibility='hidden'}));const tick=()=>{done++;if(done>=imgs.length)$('#pst').textContent=`共 ${total} 頁，${EDIT?'編輯中':'可以列印了'}`};
  imgs.forEach(i=>{if(i.complete)tick();else{i.onload=tick;i.onerror=tick}});if(!imgs.length)tick();
+ if(!EDIT){
+  $('#pstaff').onchange=e=>{location.search='?view=print'+(e.target.checked?'&staff=1':'')};
+  $('#pp').onclick=()=>window.print();
+  $('#pedit').onclick=()=>{EDIT=true;drawPrint()};
+  return;
+ }
+ document.querySelectorAll('[data-edit]').forEach(el=>{
+  el.contentEditable='true';el.spellcheck=false;
+  el.addEventListener('input',()=>{const [k,f]=el.dataset.edit.split('.');cfg(k)[f]=el.dataset.html?cleanHtml(el.innerHTML):el.innerText.trim();DIRTY.add(k);$('#psave').textContent=`儲存修改（${DIRTY.size}）`});
+ });
+ document.querySelectorAll('[data-img]').forEach(el=>el.onclick=()=>openPicker(el.dataset.img,el.dataset.series));
+ document.querySelectorAll('[data-reset-page]').forEach(b=>b.onclick=()=>{const k=b.dataset.resetPage;CFG[k]=null;DIRTY.add(k);drawPrint()});
+ $('#pdone').onclick=()=>{if(DIRTY.size&&!$('#perr').dataset.warned){$('#perr').textContent='還有未儲存的修改，再按一次「完成編輯」會放棄修改';$('#perr').hidden=false;$('#perr').dataset.warned='1';return}EDIT=false;DIRTY.clear();renderPrint()};
+ $('#psave').onclick=async()=>{
+  pw=$('#ppw').value;const er=$('#perr');er.hidden=true;
+  if(!DIRTY.size){er.textContent='沒有需要儲存的修改';er.hidden=false;return}
+  const items=[...DIRTY].map(k=>({key:k,value:CFG[k]?JSON.stringify(CFG[k]):''}));
+  $('#psave').disabled=true;$('#psave').textContent='儲存中';
+  try{await post({action:'admin_print',password:pw,items});DIRTY.clear();$('#psave').textContent='已儲存';$('#psave').disabled=false}
+  catch(x){er.textContent=x.message;er.hidden=false;$('#psave').disabled=false;$('#psave').textContent=`儲存修改（${DIRTY.size}）`}
+ };
+}
+function openPicker(target,series){
+ const ids=s=>{const se=PD.data.series.find(x=>x.id===s);return [...new Set([...(PD.gals[s]||[]),...(se?se.items.map(i=>i.img):[])].filter(Boolean))]};
+ const isThumb=target.includes('.thumbs.');
+ let cur=series||PD.data.series[0].id;
+ const draw=()=>{
+  dlg.innerHTML=`<div class="cart" style="max-width:820px"><button class="x" aria-label="關閉" data-close>×</button><h2>選擇圖片</h2>
+  ${series?'':`<label class="f">系列<select id="pkser">${PD.data.series.map(s=>`<option value="${esc(s.id)}" ${s.id===cur?'selected':''}>${esc(s.id)} ${esc(s.name)}</option>`).join('')}</select></label>`}
+  <div class="pick" style="margin-top:12px">${ids(cur).map(p=>`<button data-pk="${esc(p)}" aria-label="選這張"><img loading="lazy" referrerpolicy="no-referrer" src="${img(p,240)}" alt=""></button>`).join('')||'<span class="sub">這個系列找不到照片</span>'}</div>
+  <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">${isThumb?'<button class="ghost" data-pk="-">這格不放圖</button>':''}<button class="ghost" data-pk="">改回預設</button></div></div>`;
+  dlg.querySelector('[data-close]').onclick=()=>dlg.close();
+  const sel=$('#pkser',dlg);if(sel)sel.onchange=()=>{cur=sel.value;draw()};
+  dlg.querySelectorAll('[data-pk]').forEach(b=>b.onclick=()=>{setImg(target,b.dataset.pk);dlg.close();drawPrint()});
+ };
+ draw();if(!dlg.open)dlg.showModal();
+}
+function setImg(target,val){
+ const parts=target.split('.');const c=cfg(parts[0]);
+ if(parts[1]==='thumbs'){c.thumbs=c.thumbs||[null,null,null,null];c.thumbs[+parts[2]]=val===''?null:val}
+ else{if(val==='')delete c[parts[1]];else c[parts[1]]=val}
+ DIRTY.add(parts[0]);
 }
 dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
 (async()=>{
