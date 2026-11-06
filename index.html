@@ -379,7 +379,7 @@ async function renderPrint(){
   const quilt=s.items.find(i=>!i.type.includes('枕套')&&i.type!=='床墊')||s.items[0];
   const desc=(quilt.desc||[]).filter(l=>!/^顏色|尺寸|^枕/.test(l));
   const pr=set=>{const a=[...set];const mn=Math.min(...a),mx=Math.max(...a);return mn===mx?money(mn):money(mn)+'–'+num(mx)};
-  return `<section class="sheet${groups.length>4?' dense':''}"><div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div>
+  return `<section class="sheet"><div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div>
   <div class="sh-title"><h2>${esc(s.name)}</h2><span>${esc(s.id)}</span></div>
   <div class="sh-main">${main?`<img referrerpolicy="no-referrer" src="${img(main,1600)}" alt="">`:''}</div>
   ${pool.length?`<div class="sh-thumbs">${[0,1,2,3].map(n=>`<div>${pool[n]?`<img referrerpolicy="no-referrer" src="${img(pool[n],700)}" alt="">`:''}</div>`).join('')}</div>`:''}
