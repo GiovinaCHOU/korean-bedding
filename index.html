@@ -56,6 +56,7 @@ legend{padding:0;font-size:14px;color:var(--soft);margin-bottom:6px}
 .opts{display:flex;flex-wrap:wrap;gap:6px}
 .opt{border:1px solid var(--line);background:none;padding:6px 12px;display:flex;align-items:center;gap:6px;min-height:40px}
 .opt[aria-pressed=true]{border-color:var(--head);box-shadow:inset 0 0 0 1px var(--head)}
+.pricetag{font-family:"Noto Sans TC",sans-serif;font-size:13px;font-weight:500;color:var(--accent);border:1px solid var(--accent);padding:1px 6px;margin-left:8px;vertical-align:middle;letter-spacing:.05em}
 .bigprice{font-family:"Noto Serif TC",serif;font-size:30px;margin-top:18px}
 .sub{color:var(--soft);font-size:14px}
 .qty{display:flex;gap:10px;align-items:stretch;margin-top:14px}
@@ -257,7 +258,7 @@ function renderDetail(){
  ${types.length>1?`<fieldset><legend>品類</legend><div class="opts">${types.map(t=>`<button class="opt" aria-pressed="${t===sel.type}" data-type="${esc(t)}">${esc(t)}</button>`).join('')}</div></fieldset>`:''}
  ${sizes.length>1||sizes[0].dim?`<fieldset><legend>尺寸</legend><div class="opts">${sizes.map(i=>`<button class="opt" aria-pressed="${i.size===sel.size}" data-size="${esc(i.size)}">${esc(i.size==='50×70'?'':i.size)} ${esc(i.dim)}</button>`).join('')}</div></fieldset>`:''}
  <fieldset><legend>顏色</legend><div class="opts">${colors.map(i=>`<button class="opt" aria-pressed="${i.color===sel.color}" data-color="${esc(i.color)}">${i.colorCode?`<span class="chip" style="background:${SWATCH[i.colorCode]||'#ccc'}"></span>`:''}${esc(i.color)}</button>`).join('')}</div></fieldset>
- <div class="bigprice">${money(shownPrice(it))}</div>${STAFF?`<div class="sub">員工價，售價 ${money(it.price)}</div>`:''}
+ <div class="bigprice">${money(shownPrice(it))}${STAFF?'<span class="pricetag">員工價</span>':''}</div>${STAFF?`<div class="sub">原價 <s>${money(it.price)}</s></div>`:''}
  ${STAFF?(DATA.open?`<div class="qty"><input id="qty" type="number" min="1" max="99" value="${sel.qty}" aria-label="數量"><button class="primary" id="add">加入訂購清單</button></div>`:`<p class="err">預購已截止。</p>`):`<p class="sub">想訂購請告訴門市人員品編 ${esc(it.sku)}，或私訊官方 LINE。</p><p>${lineBtn('私訊官方 LINE')}</p>`}
  <ul class="desc">${(it.desc||[]).map(l=>`<li>${esc(l)}</li>`).join('')}${it.note?`<li>${esc(it.note)}</li>`:''}</ul></div></div>`;
  dlg.querySelector('[data-close]').onclick=()=>dlg.close();
