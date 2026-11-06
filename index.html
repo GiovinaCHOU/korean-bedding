@@ -87,6 +87,8 @@ td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
 tr:nth-child(even) td{background:var(--paper)}
 td.n,th.n{text-align:right}
 td select{padding:4px;border:1px solid var(--line);background:#fff}
+.foot{font-size:13px;padding:0 0 32px;margin:0}.foot a{color:var(--soft)}
+.covers{display:grid;gap:14px}.cv{border-bottom:1px solid var(--line);padding:10px 0}.cv summary{cursor:pointer;display:flex;gap:12px;align-items:center}.cv summary img{width:56px;height:70px;object-fit:cover;background:var(--paper)}.pick{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.pick button{padding:0;border:3px solid transparent;background:var(--paper);width:96px;height:120px}.pick button[aria-pressed=true]{border-color:var(--head)}.pick img{width:100%;height:100%;object-fit:cover}
 .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
 @media(max-width:760px){.cartbtn{position:fixed;right:16px;bottom:16px;z-index:6;padding:12px 20px;margin:0}.detail{grid-template-columns:1fr}.stage .main{aspect-ratio:1}dialog{height:100dvh}.grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:24px 12px}.card h2{font-size:17px}}
 @media(prefers-reduced-motion:no-preference){.main{transition:opacity .2s}}
@@ -133,7 +135,7 @@ function renderShop(){
  $('#app').innerHTML=`<div class="wrap"><header class="top"><h1>韓國寢具型錄</h1>
  <p>${STAFF?`員工預購至 <span class="deadline">${fmtDeadline(DATA.deadline)}</span>，${DATA.open?'選好款式後送出訂單，預計 11/30 前到貨。':'目前已截止，如需協助請私訊官方 LINE。'}`:`歡迎挑選喜歡的款式，想訂購請告訴永美門市人員，或私訊官方 LINE ${LINE}。`}</p></header></div>
  <nav class="filters" aria-label="依品類篩選"><div class="wrap">${types.map(t=>`<button class="pill" aria-pressed="${t===filter}" data-f="${esc(t)}">${esc(t)}</button>`).join('')}${STAFF?`<button class="cartbtn" id="openCart">訂購清單（${count}）</button>`:''}</div></nav>
- <main class="wrap"><div class="grid">${list.map(card).join('')}</div>${sizesBlock()}</main>`;
+ <main class="wrap"><div class="grid">${list.map(card).join('')}</div>${sizesBlock()}<p class="foot"><a href="?view=admin">管理後台</a></p></main>`;
  $('#app').querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{filter=b.dataset.f;renderShop()});
  $('#app').querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>openSeries(b.dataset.s));
  const oc=$('#openCart');if(oc)oc.onclick=openCart;
@@ -144,7 +146,7 @@ function card(s){
  const min=Math.min(...items.map(shownPrice));
  const colors=[...new Map(s.items.filter(i=>i.colorCode).map(i=>[i.colorCode,i])).keys()];
  const types=[...new Set(s.items.map(i=>i.type))].sort((a,b)=>TYPE_ORDER.indexOf(a)-TYPE_ORDER.indexOf(b));
- const first=items.find(i=>i.img)||s.items.find(i=>i.img)||{};
+ const first=s.cover?{img:s.cover}:(items.find(i=>i.img)||s.items.find(i=>i.img)||{});
  return `<button class="card" data-s="${esc(s.id)}"><div class="photo"><img loading="lazy" referrerpolicy="no-referrer" src="${img(first.img,600)}" alt="${esc(s.name)}"></div>
  <h2>${esc(s.name)}</h2><div class="meta">${esc(s.id)}｜${esc(types.join('、'))}</div>
  <div class="${STAFF?'staffprice':'price'}">${STAFF?'員工價 ':''}${money(min)} 起</div>
@@ -229,7 +231,7 @@ function openCart(){
 function renderShopKeep(){renderShop()}
 
 /* 後台 */
-let AD=null,tab='orders';
+let AD=null,tab='orders',CAT=null;const GAL={};
 function adminLogin(msg){
  $('#app').innerHTML=`<div class="cart"><h2>預購後台</h2><form id="lf"><label class="f">密碼<input type="password" name="p" required autocomplete="current-password"></label>${msg?`<p class="err">${esc(msg)}</p>`:''}<button class="primary" style="margin-top:12px">登入</button></form></div>`;
  $('#lf').onsubmit=async e=>{e.preventDefault();pw=new FormData(e.target).get('p');await loadAdmin()};
@@ -243,7 +245,7 @@ function csv(name,rows){
  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);
 }
 function renderAdmin(){
- const T={orders:'訂單明細',summary:'叫貨彙總',add:'代客下單'};
+ const T={orders:'訂單明細',summary:'叫貨彙總',add:'代客下單',cover:'首圖設定'};
  const tot=AD.summary.reduce((a,r)=>({q:a.q+r.qty,k:a.k+r.qty*r.krw,s:a.s+r.qty*r.ship,c:a.c+r.qty*r.cost}),{q:0,k:0,s:0,c:0});
  let body='';
  if(tab==='orders')body=`<div class="bar"><button class="ghost" id="xo">下載明細 CSV</button><span class="sub">共 ${AD.orders.length} 筆</span></div><div class="tablewrap"><table><tr><th>訂單</th><th>時間</th><th>姓名</th><th>電話</th><th>部門</th><th>類型</th><th>品項</th><th class="n">金額</th><th>付款</th><th>方式</th><th>備註</th></tr>
@@ -256,10 +258,13 @@ function renderAdmin(){
  <label class="f">品項，一行一筆「品編 數量」<textarea name="lines" rows="5" required placeholder="KRBL001DS-BL 1"></textarea></label><label class="f">備註<input name="note"></label>
  <p class="err" id="ae" hidden></p><button class="primary" style="margin-top:12px">建立訂單</button></form>
  <p class="sub">客戶訂單以售價計算，員工訂單以員工價計算；截止後仍可在這裡建立。可用品編共 ${AD.skus.length} 個。</p>`;
- $('#app').innerHTML=`<div class="wrap"><header class="top"><h1 style="font-size:36px">預購後台</h1></header>
+ if(tab==='cover')body=CAT?`<p class="sub">點系列展開，從現有照片中點一張設為型錄首圖。未設定時使用第一個品項的照片。</p><div class="covers">${CAT.series.map(s=>{const def=(s.items.find(i=>i.img)||{}).img;const cur=s.cover||def;return `<details class="cv" data-cv="${esc(s.id)}"><summary><img referrerpolicy="no-referrer" src="${img(cur,160)}" alt=""><span>${esc(s.id)} ${esc(s.name)}<br><small class="sub">${s.cover?'已自訂首圖':'預設首圖'}</small></span></summary><div class="pick" data-pick="${esc(s.id)}"><span class="sub">載入照片中</span></div>${s.cover?`<button class="linkbtn" data-reset="${esc(s.id)}" style="margin-top:8px">改回預設首圖</button>`:''}</details>`}).join('')}</div>`:'<p class="sub">載入型錄中</p>';
+ $('#app').innerHTML=`<div class="wrap"><header class="top"><h1 style="font-size:36px">預購後台</h1><p><a href="?view=staff">員工下單頁</a>｜<a href="./">客戶型錄頁</a></p></header>
  <div class="bar"><span>員工預購：${AD.open?'開放中':'已關閉'}（截止 ${fmtDeadline(AD.deadline)}）</span><button class="ghost" id="tg">${AD.closed?'重新開放':'立即關閉'}</button><button class="ghost" id="rf">重新整理</button></div>
  <div class="tabs">${Object.keys(T).map(k=>`<button class="pill" aria-pressed="${k===tab}" data-tab="${k}">${T[k]}</button>`).join('')}</div>${body}</div>`;
- $('#app').querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;renderAdmin()});
+ $('#app').querySelectorAll('[data-tab]').forEach(b=>b.onclick=async()=>{tab=b.dataset.tab;renderAdmin();if(tab==='cover'&&!CAT){try{CAT=await get('');}catch(x){alertErr(x.message)}renderAdmin()}});
+ $('#app').querySelectorAll('[data-cv]').forEach(d=>d.ontoggle=()=>{if(d.open)loadPick(d.dataset.cv)});
+ $('#app').querySelectorAll('[data-reset]').forEach(b=>b.onclick=()=>saveCover(b.dataset.reset,''));
  $('#rf').onclick=loadAdmin;
  $('#tg').onclick=async()=>{await post({action:'admin_toggle',password:pw,closed:!AD.closed});loadAdmin()};
  const xo=$('#xo');if(xo)xo.onclick=()=>csv('韓被訂單明細.csv',[['訂單編號','時間','姓名','電話','部門','類型','品編','數量','品項','單價','付款狀態','付款方式','備註'],...AD.orders.flatMap(o=>o.lines.map(l=>[o.id,o.date,o.name,o.phone,o.dept,o.kind,l.sku,l.qty,l.name,l.unit,o.pay,o.method,o.note]))]);
@@ -273,6 +278,19 @@ function renderAdmin(){
   const items=d.lines.split('\n').map(l=>l.trim()).filter(Boolean).map(l=>{const[s,q]=l.split(/\s+/);return{sku:s,qty:Number(q||1)}});
   try{const r=await post({action:'admin_order',password:pw,token:Date.now()+'-'+Math.random(),kind:d.kind,name:d.name,phone:d.phone,dept:d.dept,note:d.note,items});tab='orders';await loadAdmin();}catch(x){er.textContent=x.message;er.hidden=false}
  };
+}
+async function loadPick(id){
+ const box=$(`[data-pick="${id}"]`);if(!box)return;
+ const s=CAT.series.find(x=>x.id===id);
+ if(!GAL[id]){try{GAL[id]=(await get('action=gallery&series='+encodeURIComponent(id))).images||[]}catch(e){GAL[id]=[]}}
+ const ids=[...new Set([...s.items.map(i=>i.img),...GAL[id]].filter(Boolean))];
+ const cur=s.cover||(s.items.find(i=>i.img)||{}).img;
+ box.innerHTML=ids.length?ids.map(p=>`<button aria-pressed="${p===cur}" data-set="${esc(p)}" aria-label="設為首圖"><img loading="lazy" referrerpolicy="no-referrer" src="${img(p,240)}" alt=""></button>`).join(''):'<span class="sub">這個系列找不到照片，請確認型錄連結欄的資料夾。</span>';
+ box.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>saveCover(id,b.dataset.set));
+}
+async function saveCover(id,image){
+ try{await post({action:'admin_cover',password:pw,series:id,image});const s=CAT.series.find(x=>x.id===id);if(image)s.cover=image;else delete s.cover;renderAdmin();const d=$(`[data-cv="${id}"]`);if(d){d.open=true;loadPick(id)}}
+ catch(x){alertErr(x.message)}
 }
 function alertErr(m){const p=document.createElement('p');p.className='err';p.textContent=m;$('#app .wrap').prepend(p)}
 
