@@ -378,14 +378,14 @@ async function renderPrint(){
   const quilt=s.items.find(i=>!i.type.includes('枕套')&&i.type!=='床墊')||s.items[0];
   const desc=(quilt.desc||[]).filter(l=>!/^顏色|尺寸|^枕/.test(l));
   const pr=set=>{const a=[...set];const mn=Math.min(...a),mx=Math.max(...a);return mn===mx?money(mn):money(mn)+'–'+num(mx)};
-  return `<section class="sheet${groups.length>5?' dense':''}"><div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div>
+  return `<section class="sheet${groups.length>4?' dense':''}"><div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div>
   <div class="sh-title"><h2>${esc(s.name)}</h2><span>${esc(s.id)}</span></div>
   <div class="sh-main">${main?`<img referrerpolicy="no-referrer" src="${img(main,1600)}" alt="">`:''}</div>
   ${pool.length?`<div class="sh-thumbs">${[0,1,2,3].map(n=>`<div>${pool[n]?`<img referrerpolicy="no-referrer" src="${img(pool[n],700)}" alt="">`:''}</div>`).join('')}</div>`:''}
   <div class="sh-body"><div>${desc.length?`<h3>商品說明</h3><ul>${desc.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`:''}
    <h3>顏色</h3><div class="sh-sw">${colors.map(i=>`<span><i style="background:${SWATCH[i.colorCode]||'#fff'}"></i>${esc(i.color)}</span>`).join('')}</div></div>
    <div><table class="ptab"><tr><th>品項</th><th>尺寸</th><th class="n">售價</th>${showStaff?'<th class="n">員工價</th>':''}</tr>
-   ${groups.map(g=>`<tr><td>${esc(g.type)}${g.size?' '+esc(g.size):''}<br><small>${esc([...new Set(g.colors)].join('、'))}</small></td><td>${esc(g.dim)}</td><td class="n">${pr(g.prices)}</td>${showStaff?`<td class="n">${g.staff.size?pr(g.staff):''}</td>`:''}</tr>`).join('')}</table></div></div>
+   ${groups.map(g=>`<tr><td>${esc(g.type)}${g.size?' '+esc(g.size):''} <small>${esc([...new Set(g.colors)].join('、'))}</small></td><td>${esc(g.dim)}</td><td class="n">${pr(g.prices)}</td>${showStaff?`<td class="n">${g.staff.size?pr(g.staff):''}</td>`:''}</tr>`).join('')}</table></div></div>
   <div class="sh-foot"><span>尺寸因生產批次不同，±5 cm 為合理誤差範圍${s.id==='KRBL006'?'｜本款可烘乾':'｜可機洗，不可烘乾'}</span><span>官方 LINE ${LINE}｜${k+1}</span></div></section>`});
  const info=`<section class="sheet"><div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div><div class="sh-info">
   <div class="sh-title"><h2>尺寸與注意事項</h2></div><p>韓國寢具尺寸與台灣規格不同，購買前請先量床。因工廠生產批次不同，尺寸正負 5 cm 為合理誤差範圍。</p>
