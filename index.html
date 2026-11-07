@@ -448,7 +448,13 @@ function drawPrint(){
    gk[g].prices.add(i.price);if(i.staff)gk[g].staff.add(i.staff);gk[g].colors.push(i.color);gk[g].skus.push(i.sku)});
   const colors=[...new Map(s.items.map(i=>[i.color,i])).values()];
   const quilt=s.items.find(i=>!i.type.includes('枕套')&&i.type!=='床墊')||s.items[0];
-  const descLines=(quilt.desc||[]).filter(l=>!/^顏色|尺寸|^枕/.test(l));
+  const matOf=i=>((i.desc||[]).find(l=>/^材質/.test(l))||'').replace(/^材質\s*[:：]\s*/,'').trim();
+  const mats=[];const seenT={};
+  [...s.items].sort((a,b)=>TYPE_ORDER.indexOf(a.type)-TYPE_ORDER.indexOf(b.type)).forEach(i=>{const m=matOf(i);if(m&&!seenT[i.type]){seenT[i.type]=1;mats.push({type:i.type,m})}});
+  const sameMat=new Set(mats.map(x=>x.m)).size<=1;
+  const matLines=!mats.length?[]:sameMat?['材質：'+mats[0].m]:mats.map(x=>x.type+'：'+x.m);
+  const extra=[...new Set(s.items.flatMap(i=>(i.desc||[]).filter(l=>!/^材質|^顏色|尺寸|^枕|^床墊/.test(l))))];
+  const descLines=[...matLines,...extra];
   const descHtml=c.desc!==undefined?cleanHtml(c.desc):(descLines.length?`<h3>商品說明</h3><ul>${descLines.map(l=>`<li>${esc(l)}</li>`).join('')}</ul>`:'');
   const pr=set=>{const a=[...set];const mn=Math.min(...a),mx=Math.max(...a);return mn===mx?money(mn):money(mn)+'–'+num(mx)};
   return `<section class="sheet" data-key="${key}">${EDIT?`<button class="resetpage" data-reset-page="${key}">還原此頁</button>`:''}<div class="sh-top"><b>YUNGMEI LIVING 永美家居</b><span>韓國寢具型錄 2026</span></div>
